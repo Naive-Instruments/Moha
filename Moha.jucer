@@ -17,6 +17,8 @@
         <FILE id="wKexCt" name="PeakFilter.cpp" compile="1" resource="0" file="Source/DSP/PeakFilter.cpp"/>
         <FILE id="AfkIf0" name="PeakFilter.h" compile="0" resource="0" file="Source/DSP/PeakFilter.h"/>
       </GROUP>
+      <FILE id="gIBjHU" name="Moha.cpp" compile="1" resource="0" file="Source/Moha.cpp"/>
+      <FILE id="mtcD8P" name="Moha.h" compile="0" resource="0" file="Source/Moha.h"/>
       <FILE id="zzZwpq" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="LaGcCM" name="PluginProcessor.h" compile="0" resource="0"
