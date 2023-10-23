@@ -4,6 +4,19 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="QHHdm7" name="Moha">
     <GROUP id="{0D2D17B4-B6DC-BB3C-2030-277A45B115FD}" name="Source">
+      <GROUP id="{D73D156C-4598-41B2-381C-0F88E26EDF02}" name="DSP">
+        <FILE id="MwycGW" name="HighPassFilter.cpp" compile="1" resource="0"
+              file="Source/DSP/HighPassFilter.cpp"/>
+        <FILE id="zm0v7S" name="HighPassFilter.h" compile="0" resource="0"
+              file="Source/DSP/HighPassFilter.h"/>
+        <FILE id="ivAhWd" name="LowPassFilter.cpp" compile="1" resource="0"
+              file="Source/DSP/LowPassFilter.cpp"/>
+        <FILE id="a5oKMk" name="LowPassFilter.h" compile="0" resource="0" file="Source/DSP/LowPassFilter.h"/>
+        <FILE id="ZmsCKj" name="NotchFilter.cpp" compile="1" resource="0" file="Source/DSP/NotchFilter.cpp"/>
+        <FILE id="goOH3x" name="NotchFilter.h" compile="0" resource="0" file="Source/DSP/NotchFilter.h"/>
+        <FILE id="wKexCt" name="PeakFilter.cpp" compile="1" resource="0" file="Source/DSP/PeakFilter.cpp"/>
+        <FILE id="AfkIf0" name="PeakFilter.h" compile="0" resource="0" file="Source/DSP/PeakFilter.h"/>
+      </GROUP>
       <FILE id="zzZwpq" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="LaGcCM" name="PluginProcessor.h" compile="0" resource="0"
