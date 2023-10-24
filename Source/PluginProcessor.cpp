@@ -95,6 +95,12 @@ void MohaAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+    juce::dsp::ProcessSpec spec;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.sampleRate = sampleRate;
+    spec.numChannels = getTotalNumOutputChannels();
+
+    moha_fx.prepare(spec);
 }
 
 void MohaAudioProcessor::releaseResources()
@@ -144,18 +150,32 @@ void MohaAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
+    //define parameters in relation to the audio processor value tree state
+    float gain = *apvts.getRawParameterValue("Gain");
+    float pre_highPassFreq = *apvts.getRawParameterValue("HighPassFreq");
+    float pre_lowPassFreq = *apvts.getRawParameterValue("LowPassFreq");
+    float sensitivity = *apvts.getRawParameterValue("Sensitivity");
+    float speed = *apvts.getRawParameterValue("Speed");
+    float darkness = *apvts.getRawParameterValue("Darkness");
+    float volume = *apvts.getRawParameterValue("Volume");
+
+    // Renew parameters
+    moha_fx.SetGain(gain);
+    moha_fx.SetHPFPreFreq(pre_highPassFreq);
+    moha_fx.SetLPFPreFreq(pre_lowPassFreq);
+    moha_fx.SetSensitivity(sensitivity);
+    moha_fx.SetSpeed(speed);
+    moha_fx.SetDarkness(darkness);
+    moha_fx.SetVolume(volume);
+
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
     // Make sure to reset the state if your inner loop is processing
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
-
-        // ..do something to the data...
-    }
+    juce::dsp::AudioBlock<float> block(buffer);
+    moha_fx.process(block);
 }
 
 //==============================================================================
@@ -181,6 +201,38 @@ void MohaAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+}
+
+using APVTS = juce::AudioProcessorValueTreeState;
+APVTS::ParameterLayout MohaAudioProcessor::createParameterLayout()
+{
+    APVTS::ParameterLayout layout;
+
+    using namespace juce;
+
+    layout.add(std::make_unique<AudioParameterFloat>(ParameterID{ "Gain", 1 },
+        "Gain",
+        NormalisableRange<float>(-24.f, 24.f, .1f, 1.f), 0.f));
+    layout.add(std::make_unique<AudioParameterFloat>(ParameterID{ "HighPassFreq", 1 },
+        "HighPassFreq",
+        NormalisableRange<float>(20, 5000, .1, 1), 20));
+    layout.add(std::make_unique<AudioParameterFloat>(ParameterID{ "LowPassFreq", 1 },
+        "LowPassFreq",
+        NormalisableRange<float>(100, 20000, .1, 1), 20000));
+    layout.add(std::make_unique<AudioParameterFloat>(ParameterID{ "Sensitivity", 1 },
+        "Sensitivity",
+        NormalisableRange<float>(0.f, 100.f, 0.1f, 1.f), 50.f));
+    layout.add(std::make_unique<AudioParameterFloat>(ParameterID{ "Speed", 1 },
+        "Speed",
+        NormalisableRange<float>(0.f, 100.f, 0.1f, 1.f), 50.f));
+    layout.add(std::make_unique<AudioParameterFloat>(ParameterID{ "Darkness", 1 },
+        "Darkness",
+        NormalisableRange<float>(0.f, 100.f, 0.1f, 1.f), 50.f));
+    layout.add(std::make_unique<AudioParameterFloat>(ParameterID{ "Volume", 1 },
+        "Volume",
+        NormalisableRange<float>(-144.f, 6.f, .1f, 1.f), 0.f));
+
+    return layout;
 }
 
 //==============================================================================

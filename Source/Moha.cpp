@@ -12,9 +12,37 @@
 
 void Moha::pwm(double freq, std::vector<float*>& _data)
 {
+    static double t_trans = 0;
+    static double gain = 0;
+    static bool is_rising = true;
+    double k = log(10) / (rise_n_fall_time * sampleRate);
     for (size_t i = 0; i < _data.size(); ++i) {
-        if (phase > sampleRate / 2) *_data[i] = 0;
+        if (phase > sampleRate / 2) {
+            if (is_rising) {
+                t_trans = 0;
+                is_rising = false;
+            }
+            else {
+                t_trans += freq / sampleRate;
+            }
+            gain += k * exp(-k * t_trans);
+        }
+        else {
+            if (!is_rising) {
+                t_trans = 0;
+                is_rising = true;
+            }
+            else {
+                t_trans += freq / sampleRate;
+            }
+            gain -= k * exp(-k * t_trans);
+        }
+
+        gain = limit(gain, 0, 1) * dB_to_unity(volume);
+
+        *_data[i] *= gain;
     }
+    
     phase += freq / sampleRate;
     if (phase >= sampleRate) phase -= sampleRate;
 }
@@ -89,7 +117,7 @@ void Moha::process(juce::dsp::AudioBlock<float>& in_audioBlock) {
     lpf_shift.lowPassFrequency = cutoffFrequency;
     lpf_shift.process(in_audioBlock);
 
-    // 3. PWM modulating
+    // 3. Pre-amp, PWM modulating and Post-amp
     // Cast level to pwm frequency
     pwmFrequency = pow_cast(
         level_in_decibel,
@@ -98,8 +126,9 @@ void Moha::process(juce::dsp::AudioBlock<float>& in_audioBlock) {
         (1 - speed) < 0.01 ? 0.01 : (1 - speed)) * MAX_PWM_FREQ;
     // Modulate
     for (size_t i = 0; i < in_audioBlock.getNumSamples(); ++i) {
-        for (size_t j = 0; j < in_audioBlock.getNumSamples(); ++j) {
+        for (size_t j = 0; j < in_audioBlock.getNumChannels(); ++j) {
             auto var = &(in_audioBlock.getChannelPointer(j)[i]);
+            *var *= dB_to_unity(gain);
             frame.push_back(var);
             PushToHistory(*var);
         }

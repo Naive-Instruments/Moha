@@ -4,6 +4,10 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="QHHdm7" name="Moha">
     <GROUP id="{0D2D17B4-B6DC-BB3C-2030-277A45B115FD}" name="Source">
+      <GROUP id="{76A084FF-F31F-CC06-AABF-6420CB930843}" name="GUI">
+        <FILE id="xi28PJ" name="CustomStyle.cpp" compile="1" resource="0" file="Source/CustomStyle.cpp"/>
+        <FILE id="LINvti" name="CustomStyle.h" compile="0" resource="0" file="Source/CustomStyle.h"/>
+      </GROUP>
       <GROUP id="{D73D156C-4598-41B2-381C-0F88E26EDF02}" name="DSP">
         <FILE id="MwycGW" name="HighPassFilter.cpp" compile="1" resource="0"
               file="Source/DSP/HighPassFilter.cpp"/>

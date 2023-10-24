@@ -20,6 +20,7 @@
 #define MIN_CUTOFF_FREQ (1500)
 #define MAX_PWM_FREQ (500)
 #define MIN_PWM_TRIGGER_LEVEL_IN_DB (-60)
+#define MAX_GAIN_RANGE (24)
 
 
 class Moha {
@@ -40,9 +41,11 @@ private:
     double Q = sqrt(2);                   // Shifting lowpass filter quality factor
     
     // Adjustble values
+    double gain = 0;            // Preamp gain in dB
     double sensitivity = 0.5;   // Range [0,1]
     double speed = 0.5;         // Response speed, range [0,1]
     double darkness = 0.5;      // Set cutoff requency moving speed
+    double volume = 0;
 
 public:
     Moha() {};
@@ -61,6 +64,10 @@ public:
     double unity_to_dB(double _in) {
         _in = (_in <= 0) ? 0.000001 : _in;
         return 20 * log10(_in);
+    }
+
+    double dB_to_unity(double _in) {
+        return pow(10, _in / 20);
     }
 
     double pow_cast(double _in, double _min = 0, double _max = 1, double times = 0.5) {
@@ -83,12 +90,16 @@ public:
     void SetHPFPreFreq(double _in) { hpf_pre.highPassFrequency = (_in < 20000 && _in > 20) ? _in : hpf_pre.highPassFrequency; }
 
     // Core process
+    double GetGain() { return gain; }
+    void SetGain(double _gain) { gain = limit(_gain, -MAX_GAIN_RANGE, MAX_GAIN_RANGE); }
     double GetSensitivity() { return sensitivity; }
-    void SetSensitivity(double _sensitivity) { sensitivity = limit(_sensitivity, 0, 1); }
+    void SetSensitivity(double _sensitivity) { sensitivity = limit(_sensitivity, 0, 100) / 100; }
     double GetSpeed() { return speed; }
-    void SetSpeed(double _speed) { speed = limit(_speed, 0, 1); }
-    double GetDarkener() { return darkness; }
-    void SetDarkener(double _darkness) { darkness = limit(_darkness, 0, 1); }
+    void SetSpeed(double _speed) { speed = limit(_speed, 0, 100) / 100; }
+    double GetDarkness() { return darkness; }
+    void SetDarkness(double _darkness) { darkness = limit(_darkness, 0, 100) / 100; }
+    double GetVolume() { return volume; }
+    void SetVolume(double _volume) { volume = limit(_volume, -144, 6); }
 
     void prepare(juce::dsp::ProcessSpec& in_spec);
     void process(juce::dsp::AudioBlock<float>& in_audioBlock);
