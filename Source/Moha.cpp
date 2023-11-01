@@ -123,7 +123,7 @@ void Moha::process(juce::dsp::AudioBlock<float>& in_audioBlock) {
         MIN_PWM_TRIGGER_LEVEL_IN_DB * pow_cast(sensitivity),
         0,
         1 + darkness) 
-        * (20000 - splitFreq);
+        * (12000 - splitFreq);
     lpf_shift.lowPassFrequency = cutoffFrequency;
     lpf_shift.process(in_audioBlock);
     
