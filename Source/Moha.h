@@ -18,7 +18,7 @@
 
 #define MAX_HISTORY_SAMPLES (16)
 #define MIN_CUTOFF_FREQ (1500)
-#define MAX_PWM_FREQ (500)
+#define MAX_PWM_FREQ (50)
 #define MIN_PWM_TRIGGER_LEVEL_IN_DB (-60)
 #define MAX_GAIN_RANGE (24)
 
@@ -79,7 +79,7 @@ public:
         }
     }
 
-    void pwm(double freq, std::vector<float*>& _data);
+    void pwm(double freq, juce::dsp::AudioBlock<float>& block, size_t& frameIndex);
 
     void GetBufferAvgLevel(juce::dsp::AudioBlock<float>& in_audioBlock, double& _out);
     void GetHistoryAvgLevel(double& _out);

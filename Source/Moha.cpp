@@ -10,22 +10,28 @@
 
 #include "Moha.h"
 
-void Moha::pwm(double freq, std::vector<float*>& _data)
+void Moha::pwm(double freq, juce::dsp::AudioBlock<float>& block, size_t& frameIndex)
 {
     static double t_trans = 0;
     static double gain = 0;
     static bool is_rising = true;
-    double k = log(10) / (rise_n_fall_time * sampleRate);
-    for (size_t i = 0; i < _data.size(); ++i) {
-        if (phase > sampleRate / 2) {
+    double k = log(10) / (rise_n_fall_time / sampleRate / 1000);
+    static double delta_t = 0.01;
+    static double period = 0.01;
+
+    delta_t = 1.0 / sampleRate;
+    period = freq / sampleRate;
+
+    for (size_t i = 0; i < block.getNumChannels(); ++i) {
+        if (phase > period / 2) {
             if (is_rising) {
                 t_trans = 0;
                 is_rising = false;
             }
             else {
-                t_trans += freq / sampleRate;
+                t_trans += delta_t;
             }
-            gain += k * exp(-k * t_trans);
+            gain -= k * exp(-k * t_trans);
         }
         else {
             if (!is_rising) {
@@ -33,18 +39,20 @@ void Moha::pwm(double freq, std::vector<float*>& _data)
                 is_rising = true;
             }
             else {
-                t_trans += freq / sampleRate;
+                t_trans += delta_t;
             }
-            gain -= k * exp(-k * t_trans);
+            gain += k * exp(-k * t_trans);
         }
 
         gain = limit(gain, 0, 1) * dB_to_unity(volume);
 
-        *_data[i] *= gain;
+        auto var = block.getSample(i, frameIndex);
+        var *= gain;
+        block.setSample(i, frameIndex, var);
     }
     
-    phase += freq / sampleRate;
-    if (phase >= sampleRate) phase -= sampleRate;
+    phase += delta_t;
+    if (phase >= period) phase -= period;
 }
 
 void Moha::GetBufferAvgLevel(juce::dsp::AudioBlock<float>& in_audioBlock, double& _out)
@@ -71,7 +79,10 @@ void Moha::GetHistoryAvgLevel(double& _out) {
 
 void Moha::PushToHistory(float _in)
 {
-    secondary_buffer->push_back(_in);
+    for (size_t i = secondary_buffer->size() - 1; i > 0; --i) {
+        secondary_buffer->data()[i] = secondary_buffer->data()[i - 1];
+    }
+    secondary_buffer->data()[0] = _in;
 }
 
 void Moha::prepare(juce::dsp::ProcessSpec& in_spec)
@@ -96,18 +107,17 @@ void Moha::prepare(juce::dsp::ProcessSpec& in_spec)
 }
 
 void Moha::process(juce::dsp::AudioBlock<float>& in_audioBlock) {
-    static std::vector<float*> frame;
     static double pwmFrequency = 0;
 
-    // 1. Pre-filtering the material
+    // 1. Pre-filtering the material (passed)
     hpf_pre.process(in_audioBlock);
     lpf_pre.process(in_audioBlock);
-
+    
     // 2. Volume-controlled auto-wah
     // Cast level to cutoff frequency
     GetHistoryAvgLevel(level_in_decibel);
     level_in_decibel = unity_to_dB(level_in_decibel);
-    double splitFreq = MIN_CUTOFF_FREQ + darkness * (20000 - MIN_CUTOFF_FREQ);
+    double splitFreq = MIN_CUTOFF_FREQ + (1 - darkness) * (12000 - MIN_CUTOFF_FREQ);
     cutoffFrequency = splitFreq + pow_cast(
         level_in_decibel,
         MIN_PWM_TRIGGER_LEVEL_IN_DB * pow_cast(sensitivity),
@@ -116,7 +126,7 @@ void Moha::process(juce::dsp::AudioBlock<float>& in_audioBlock) {
         * (20000 - splitFreq);
     lpf_shift.lowPassFrequency = cutoffFrequency;
     lpf_shift.process(in_audioBlock);
-
+    
     // 3. Pre-amp, PWM modulating and Post-amp
     // Cast level to pwm frequency
     pwmFrequency = pow_cast(
@@ -124,16 +134,17 @@ void Moha::process(juce::dsp::AudioBlock<float>& in_audioBlock) {
         MIN_PWM_TRIGGER_LEVEL_IN_DB * pow_cast(sensitivity),
         0,
         (1 - speed) < 0.01 ? 0.01 : (1 - speed)) * MAX_PWM_FREQ;
-    // Modulate
+    
     for (size_t i = 0; i < in_audioBlock.getNumSamples(); ++i) {
         for (size_t j = 0; j < in_audioBlock.getNumChannels(); ++j) {
-            auto var = &(in_audioBlock.getChannelPointer(j)[i]);
-            *var *= dB_to_unity(gain);
-            frame.push_back(var);
-            PushToHistory(*var);
+            // Preamp
+            auto var = in_audioBlock.getSample(j, i);
+            in_audioBlock.setSample(j, i, var * dB_to_unity(gain));
+            PushToHistory(var);
         }
-        pwm(pwmFrequency, frame);
-        frame.clear();
+
+        // Modulate
+        pwm(pwmFrequency, in_audioBlock, i);
     }
     
 }
