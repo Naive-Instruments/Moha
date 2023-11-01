@@ -93,11 +93,11 @@ public:
     double GetGain() { return gain; }
     void SetGain(double _gain) { gain = limit(_gain, -MAX_GAIN_RANGE, MAX_GAIN_RANGE); }
     double GetSensitivity() { return sensitivity; }
-    void SetSensitivity(double _sensitivity) { sensitivity = limit(_sensitivity, 0, 100) / 100; }
+    void SetSensitivity(double _sensitivity) { sensitivity = limit(_sensitivity, 0.01, 100) / 100; }
     double GetSpeed() { return speed; }
-    void SetSpeed(double _speed) { speed = limit(_speed, 0, 100) / 100; }
+    void SetSpeed(double _speed) { speed = limit(_speed, 0.01, 100) / 100; }
     double GetDarkness() { return darkness; }
-    void SetDarkness(double _darkness) { darkness = limit(_darkness, 0, 100) / 100; }
+    void SetDarkness(double _darkness) { darkness = limit(_darkness, 0.01, 100) / 100; }
     double GetVolume() { return volume; }
     void SetVolume(double _volume) { volume = limit(_volume, -144, 6); }
 

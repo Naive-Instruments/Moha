@@ -108,43 +108,59 @@ void Moha::prepare(juce::dsp::ProcessSpec& in_spec)
 
 void Moha::process(juce::dsp::AudioBlock<float>& in_audioBlock) {
     static double pwmFrequency = 0;
-
-    // 1. Pre-filtering the material (passed)
-    hpf_pre.process(in_audioBlock);
-    lpf_pre.process(in_audioBlock);
+    static size_t subblock_count = 0;
+    static std::vector<juce::dsp::AudioBlock<float>> subblock;
     
-    // 2. Volume-controlled auto-wah
-    // Cast level to cutoff frequency
-    GetHistoryAvgLevel(level_in_decibel);
-    level_in_decibel = unity_to_dB(level_in_decibel);
-    double splitFreq = MIN_CUTOFF_FREQ + (1 - darkness) * (12000 - MIN_CUTOFF_FREQ);
-    cutoffFrequency = splitFreq + pow_cast(
-        level_in_decibel,
-        MIN_PWM_TRIGGER_LEVEL_IN_DB * pow_cast(sensitivity),
-        0,
-        1 + darkness) 
-        * (12000 - splitFreq);
-    lpf_shift.lowPassFrequency = cutoffFrequency;
-    lpf_shift.process(in_audioBlock);
-    
-    // 3. Pre-amp, PWM modulating and Post-amp
-    // Cast level to pwm frequency
-    pwmFrequency = pow_cast(
-        level_in_decibel,
-        MIN_PWM_TRIGGER_LEVEL_IN_DB * pow_cast(sensitivity),
-        0,
-        (1 - speed) < 0.01 ? 0.01 : (1 - speed)) * MAX_PWM_FREQ;
-    
-    for (size_t i = 0; i < in_audioBlock.getNumSamples(); ++i) {
-        for (size_t j = 0; j < in_audioBlock.getNumChannels(); ++j) {
-            // Preamp
-            auto var = in_audioBlock.getSample(j, i);
-            in_audioBlock.setSample(j, i, var * dB_to_unity(gain));
-            PushToHistory(var);
+    subblock.clear();
+    if (in_audioBlock.getNumSamples() > 128) {
+        
+        for (size_t i = 0; i < in_audioBlock.getNumSamples() / 128; ++i) {
+            size_t sample_count = (in_audioBlock.getNumSamples() - i * 128 > 128) ? 128 : (in_audioBlock.getNumSamples() - i * 128);
+            subblock.push_back(in_audioBlock.getSubBlock(i * 128, sample_count));
         }
+    }
+    else {
+        subblock.push_back(in_audioBlock);
+    }
 
-        // Modulate
-        pwm(pwmFrequency, in_audioBlock, i);
+    for (size_t block_index = 0; block_index < subblock.size(); ++block_index) {
+        // 1. Pre-filtering the material (passed)
+        hpf_pre.process(subblock[block_index]);
+        lpf_pre.process(subblock[block_index]);
+
+        // 2. Volume-controlled auto-wah
+        // Cast level to cutoff frequency
+        GetHistoryAvgLevel(level_in_decibel);
+        level_in_decibel = unity_to_dB(level_in_decibel);
+        double splitFreq = MIN_CUTOFF_FREQ + (1 - darkness) * (12000 - MIN_CUTOFF_FREQ);
+        cutoffFrequency = splitFreq + pow_cast(
+            level_in_decibel,
+            MIN_PWM_TRIGGER_LEVEL_IN_DB * pow_cast(sensitivity),
+            0,
+            1 + darkness)
+            * (12000 - splitFreq);
+        lpf_shift.lowPassFrequency = cutoffFrequency;
+        lpf_shift.process(subblock[block_index]);
+
+        // 3. Pre-amp, PWM modulating and Post-amp
+        // Cast level to pwm frequency
+        pwmFrequency = pow_cast(
+            level_in_decibel,
+            MIN_PWM_TRIGGER_LEVEL_IN_DB * pow_cast(sensitivity),
+            0,
+            (1 - speed) < 0.01 ? 0.01 : (1 - speed)) * MAX_PWM_FREQ;
+
+        for (size_t i = 0; i < subblock[block_index].getNumSamples(); ++i) {
+            for (size_t j = 0; j < subblock[block_index].getNumChannels(); ++j) {
+                // Preamp
+                auto var = subblock[block_index].getSample(j, i);
+                subblock[block_index].setSample(j, i, var * dB_to_unity(gain));
+                PushToHistory(var);
+            }
+
+            // Modulate
+            pwm(pwmFrequency, subblock[block_index], i);
+        }
     }
     
 }
