@@ -15,43 +15,44 @@ void Moha::pwm(double freq, juce::dsp::AudioBlock<float>& block, size_t& frameIn
     static double t_trans = 0;
     static double gain = 0;
     static bool is_rising = true;
-    double k = log(10) / (rise_n_fall_time / sampleRate / 1000);
-    static double delta_t = 0.01;
+    static double k = 0;
+    static double t_tick = 0.01;
     static double period = 0.01;
 
-    delta_t = 1.0 / sampleRate;
+    t_tick = 1.0 / sampleRate;
+    k = log(10) / (rise_n_fall_time / 1000 * lin_cast(speed, 0, 1, 0.5, 1) * t_tick);
     period = freq / sampleRate;
 
-    for (size_t i = 0; i < block.getNumChannels(); ++i) {
-        if (phase > period / 2) {
-            if (is_rising) {
-                t_trans = 0;
-                is_rising = false;
-            }
-            else {
-                t_trans += delta_t;
-            }
-            gain -= k * exp(-k * t_trans);
+    if (phase > period / 2) {
+        if (is_rising) {
+            t_trans = 0;
+            is_rising = false;
         }
         else {
-            if (!is_rising) {
-                t_trans = 0;
-                is_rising = true;
-            }
-            else {
-                t_trans += delta_t;
-            }
-            gain += k * exp(-k * t_trans);
+            t_trans += t_tick;
         }
+        gain -= k * exp(-k * t_trans);
+    }
+    else {
+        if (!is_rising) {
+            t_trans = 0;
+            is_rising = true;
+        }
+        else {
+            t_trans += t_tick;
+        }
+        gain += k * exp(-k * t_trans);
+    }
 
-        gain = limit(gain, 0, 1) * dB_to_unity(volume);
+    gain = limit(gain, 0, 1) * dB_to_unity(volume);
 
+    for (size_t i = 0; i < block.getNumChannels(); ++i) {
         auto var = block.getSample(i, frameIndex);
         var *= gain;
         block.setSample(i, frameIndex, var);
     }
     
-    phase += delta_t;
+    phase += t_tick;
     if (phase >= period) phase -= period;
 }
 
@@ -128,21 +129,11 @@ void Moha::process(juce::dsp::AudioBlock<float>& in_audioBlock) {
         hpf_pre.process(subblock[block_index]);
         lpf_pre.process(subblock[block_index]);
 
-        // 2. Volume-controlled auto-wah
-        // Cast level to cutoff frequency
         GetHistoryAvgLevel(level_in_decibel);
         level_in_decibel = unity_to_dB(level_in_decibel);
-        double splitFreq = MIN_CUTOFF_FREQ + (1 - darkness) * (12000 - MIN_CUTOFF_FREQ);
-        cutoffFrequency = splitFreq + pow_cast(
-            level_in_decibel,
-            MIN_PWM_TRIGGER_LEVEL_IN_DB * pow_cast(sensitivity),
-            0,
-            1 + darkness)
-            * (12000 - splitFreq);
-        lpf_shift.lowPassFrequency = cutoffFrequency;
-        lpf_shift.process(subblock[block_index]);
+        
 
-        // 3. Pre-amp, PWM modulating and Post-amp
+        // 2. Pre-amp, PWM modulating and Post-amp
         // Cast level to pwm frequency
         pwmFrequency = pow_cast(
             level_in_decibel,
@@ -153,14 +144,26 @@ void Moha::process(juce::dsp::AudioBlock<float>& in_audioBlock) {
         for (size_t i = 0; i < subblock[block_index].getNumSamples(); ++i) {
             for (size_t j = 0; j < subblock[block_index].getNumChannels(); ++j) {
                 // Preamp
-                auto var = subblock[block_index].getSample(j, i);
-                subblock[block_index].setSample(j, i, var * dB_to_unity(gain));
+                auto var = subblock[block_index].getSample(j, i) * dB_to_unity(gain);
+                subblock[block_index].setSample(j, i, var);
                 PushToHistory(var);
             }
 
             // Modulate
             pwm(pwmFrequency, subblock[block_index], i);
         }
+
+        // 3. Volume-controlled auto-wah
+        // Cast level to cutoff frequency
+        double splitFreq = MIN_CUTOFF_FREQ + (1 - darkness) * (20000 - MIN_CUTOFF_FREQ);
+        cutoffFrequency = splitFreq + pow_cast(
+            level_in_decibel,
+            MIN_PWM_TRIGGER_LEVEL_IN_DB * pow_cast(sensitivity),
+            0,
+            1 + darkness)
+            * (20000 - splitFreq);
+        lpf_shift.lowPassFrequency = cutoffFrequency;
+        lpf_shift.process(subblock[block_index]);
     }
     
 }

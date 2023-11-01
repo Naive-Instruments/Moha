@@ -13,13 +13,14 @@
 #include <JuceHeader.h>
 #include <vector>
 #include <math.h>
+#include <limits>
 #include "DSP/HighPassFilter.h"
 #include "DSP/LowPassFilter.h"
 
-#define MAX_HISTORY_SAMPLES (16)
-#define MIN_CUTOFF_FREQ (1500)
-#define MAX_PWM_FREQ (50)
-#define MIN_PWM_TRIGGER_LEVEL_IN_DB (-60)
+#define MAX_HISTORY_SAMPLES (144)
+#define MIN_CUTOFF_FREQ (200)
+#define MAX_PWM_FREQ (120)
+#define MIN_PWM_TRIGGER_LEVEL_IN_DB (-45)
 #define MAX_GAIN_RANGE (24)
 
 
@@ -76,6 +77,13 @@ public:
         else if (_in > _max) return 1;
         else {
             return pow((_in - _min) / (_max - _min), times);
+        }
+    }
+
+    double lin_cast(double _in, double _min, double _max, double lower_boundary = 0, double upper_boundary = 1) {
+        if ((_min >= _max) || (_in < _min) || (_in > _max) || (lower_boundary >= upper_boundary)) return -std::numeric_limits<double>::infinity();
+        else {
+            return  lower_boundary + (_in - _min) / (_max - _min) * (upper_boundary - lower_boundary);
         }
     }
 
