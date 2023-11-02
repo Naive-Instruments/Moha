@@ -47,6 +47,10 @@ private:
     juce::Label preLowPassFreqLabel;
     std::unique_ptr<APVTS::SliderAttachment> preLowPassFreqSliderAttachment;
 
+    juce::Slider toneFreqSlider;
+    juce::Label toneFreqLabel;
+    std::unique_ptr<APVTS::SliderAttachment> toneFreqSliderAttachment;
+
     juce::Slider sensitivitySlider;
     juce::Label sensitivityLabel;
     std::unique_ptr<APVTS::SliderAttachment> sensitivitySliderAttachment;

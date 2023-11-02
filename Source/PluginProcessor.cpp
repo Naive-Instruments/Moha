@@ -154,6 +154,7 @@ void MohaAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
     float gain = *apvts.getRawParameterValue("Gain");
     float pre_highPassFreq = *apvts.getRawParameterValue("HighPassFreq");
     float pre_lowPassFreq = *apvts.getRawParameterValue("LowPassFreq");
+    float toneFreq = *apvts.getRawParameterValue("ToneFreq");
     float sensitivity = *apvts.getRawParameterValue("Sensitivity");
     float speed = *apvts.getRawParameterValue("Speed");
     float darkness = *apvts.getRawParameterValue("Darkness");
@@ -167,6 +168,7 @@ void MohaAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
     moha_fx.SetSpeed(speed);
     moha_fx.SetDarkness(darkness);
     moha_fx.SetVolume(volume);
+    moha_fx.SetTone(toneFreq);
 
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
@@ -215,13 +217,16 @@ APVTS::ParameterLayout MohaAudioProcessor::createParameterLayout()
         NormalisableRange<float>(-24.f, 24.f, .1f, 1.f), 0.f));
     layout.add(std::make_unique<AudioParameterFloat>(ParameterID{ "HighPassFreq", 1 },
         "HighPassFreq",
-        NormalisableRange<float>(20, 5000, .1, 1), 20));
+        NormalisableRange<float>(20, 5000, .1, 0.5), 20));
     layout.add(std::make_unique<AudioParameterFloat>(ParameterID{ "LowPassFreq", 1 },
         "LowPassFreq",
-        NormalisableRange<float>(100, 20000, .1, 1), 20000));
+        NormalisableRange<float>(100, 20000, .1, 0.5), 20000));
+    layout.add(std::make_unique<AudioParameterFloat>(ParameterID{ "ToneFreq", 1 },
+        "ToneFreq",
+        NormalisableRange<float>(500, 20000, .1, 0.25), 16000));
     layout.add(std::make_unique<AudioParameterFloat>(ParameterID{ "Sensitivity", 1 },
         "Sensitivity",
-        NormalisableRange<float>(0.f, 100.f, 0.1f, 1.f), 50.f));
+        NormalisableRange<float>(0.f, 100.f, 0.1f, 0.5), 25.f));
     layout.add(std::make_unique<AudioParameterFloat>(ParameterID{ "Speed", 1 },
         "Speed",
         NormalisableRange<float>(0.f, 100.f, 0.1f, 1.f), 50.f));
@@ -230,7 +235,7 @@ APVTS::ParameterLayout MohaAudioProcessor::createParameterLayout()
         NormalisableRange<float>(0.f, 100.f, 0.1f, 1.f), 50.f));
     layout.add(std::make_unique<AudioParameterFloat>(ParameterID{ "Volume", 1 },
         "Volume",
-        NormalisableRange<float>(-144.f, 6.f, .1f, 1.f), 0.f));
+        NormalisableRange<float>(-MAX_GAIN_RANGE, MAX_GAIN_RANGE, .1f, 1.f), 0.f));
 
     return layout;
 }

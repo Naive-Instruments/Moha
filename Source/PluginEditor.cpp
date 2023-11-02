@@ -29,6 +29,10 @@ MohaAudioProcessorEditor::MohaAudioProcessorEditor (MohaAudioProcessor& p)
     createSlider(preLowPassFreqSlider, " Hz");
     createLabel(preLowPassFreqLabel, "Low Pass", &preLowPassFreqSlider);
     preLowPassFreqSliderAttachment = std::make_unique<APVTS::SliderAttachment>(audioProcessor.apvts, "LowPassFreq", preLowPassFreqSlider);
+
+    createSlider(toneFreqSlider, " Hz");
+    createLabel(toneFreqLabel, "Tone", &toneFreqSlider);
+    toneFreqSliderAttachment = std::make_unique<APVTS::SliderAttachment>(audioProcessor.apvts, "ToneFreq", toneFreqSlider);
     
     createSlider(sensitivitySlider, " %");
     createLabel(sensitivityLabel, "Sensitivity", &sensitivitySlider);
@@ -77,6 +81,8 @@ void MohaAudioProcessorEditor::resized()
     preHighPassFreqSlider.setBounds(getWidth() - leftRightMargin - dialWidth * 3, getHeight() - 3 * topBottomMargin - 2 * dialHeight, dialWidth, dialHeight);
     
     preLowPassFreqSlider.setBounds(getWidth() - leftRightMargin - dialWidth * 2, getHeight() - 3 * topBottomMargin - 2 * dialHeight, dialWidth, dialHeight);
+
+    toneFreqSlider.setBounds(getWidth() - leftRightMargin - dialWidth * 1, getHeight() - 3 * topBottomMargin - 2 * dialHeight, dialWidth, dialHeight);
     
     sensitivitySlider.setBounds(2 * leftRightMargin + 5, getHeight() - 3 * topBottomMargin - 3 * dialHeight, 2 * dialWidth, 2 * dialHeight);
     
@@ -84,7 +90,7 @@ void MohaAudioProcessorEditor::resized()
     
     darknessSlider.setBounds(getWidth() - leftRightMargin - dialWidth * 2, getHeight() - topBottomMargin - dialHeight, dialWidth, dialHeight);
     
-    volumeSlider.setBounds(getWidth() - leftRightMargin - dialWidth, getHeight() - topBottomMargin - dialHeight, dialWidth, dialHeight);
+    volumeSlider.setBounds(getWidth() - leftRightMargin - dialWidth * 1, getHeight() - topBottomMargin - dialHeight, dialWidth, dialHeight);
 }
 
 void MohaAudioProcessorEditor::createSlider(juce::Slider& slider, juce::String textValueSuffix)

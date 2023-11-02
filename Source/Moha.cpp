@@ -10,7 +10,7 @@
 
 #include "Moha.h"
 
-void Moha::pwm(double freq, juce::dsp::AudioBlock<float>& block, size_t& frameIndex)
+void Moha::pfm(double freq, juce::dsp::AudioBlock<float>& block, size_t& frameIndex)
 {
     static double t_trans = 0;
     static double gain = 0;
@@ -20,10 +20,58 @@ void Moha::pwm(double freq, juce::dsp::AudioBlock<float>& block, size_t& frameIn
     static double period = 0.01;
 
     t_tick = 1.0 / sampleRate;
-    k = log(10) / (rise_n_fall_time / 1000 * lin_cast(speed, 0, 1, 0.5, 1) * t_tick);
-    period = freq / sampleRate;
+    k = log(10) / (rise_n_fall_time / 1000 * t_tick) * lin_cast(speed, 0, 1, 0.5, 1);
+    period = 1 / freq;
 
     if (phase > period / 2) {
+        if (is_rising) {
+            t_trans = 0;
+            is_rising = false;
+        }
+        else {
+            t_trans += t_tick;
+        }
+        gain += k * exp(-k * t_trans);
+    }
+    else {
+        if (!is_rising) {
+            t_trans = 0;
+            is_rising = true;
+        }
+        else {
+            t_trans += t_tick;
+        }
+        gain -= k * exp(-k * t_trans);
+    }
+
+    gain = limit(gain, 0, 1) * dB_to_unity(volume);
+
+    for (size_t i = 0; i < block.getNumChannels(); ++i) {
+        auto var = block.getSample(i, frameIndex);
+        var *= gain;
+        block.setSample(i, frameIndex, var);
+    }
+    
+    phase += t_tick;
+    if (phase >= period) phase -= period;
+}
+
+void Moha::pwm(double freq, juce::dsp::AudioBlock<float>& block, size_t& frameIndex)
+{
+    static double t_trans = 0;
+    static double gain = 0;
+    static bool is_rising = true;
+    static double k = 0;
+    static double t_tick = 0.01;
+    static double period = 0.01;
+    static double duty_cycle = 0.5;
+
+    t_tick = 1.0 / sampleRate;
+    k = log(10) / (rise_n_fall_time / 1000 * t_tick) * lin_cast(speed, 0, 1, 0.5, 1);
+    period = 1.0 / 30;   // Steady 100Hz pulse frequency
+    duty_cycle = lin_cast(freq, LOW_PWM_FREQ, MAX_PWM_FREQ, 0, 1);
+
+    if (phase > period * duty_cycle) {
         if (is_rising) {
             t_trans = 0;
             is_rising = false;
@@ -44,14 +92,14 @@ void Moha::pwm(double freq, juce::dsp::AudioBlock<float>& block, size_t& frameIn
         gain += k * exp(-k * t_trans);
     }
 
-    gain = limit(gain, 0, 1) * dB_to_unity(volume);
+    gain = limit(gain, 0.1, 0.9);
 
     for (size_t i = 0; i < block.getNumChannels(); ++i) {
         auto var = block.getSample(i, frameIndex);
-        var *= gain;
+        var *= (gain * dB_to_unity(volume));
         block.setSample(i, frameIndex, var);
     }
-    
+
     phase += t_tick;
     if (phase >= period) phase -= period;
 }
@@ -72,7 +120,7 @@ void Moha::GetHistoryAvgLevel(double& _out) {
     _out = 0;
     if (secondary_buffer == nullptr) return;
     if (secondary_buffer->size() == 0) return;
-    for (size_t i = 0; i < secondary_buffer->size(); ++i) {
+    for (size_t i = 0; i < secondary_buffer->size() * (1.01 - speed); ++i) {
         _out += abs(secondary_buffer->data()[i]);
     }
     _out /= secondary_buffer->size();
@@ -80,7 +128,7 @@ void Moha::GetHistoryAvgLevel(double& _out) {
 
 void Moha::PushToHistory(float _in)
 {
-    for (size_t i = secondary_buffer->size() - 1; i > 0; --i) {
+    for (size_t i = secondary_buffer->size() * (1.01 - speed) - 1; i > 0; --i) {
         secondary_buffer->data()[i] = secondary_buffer->data()[i - 1];
     }
     secondary_buffer->data()[0] = _in;
@@ -94,16 +142,25 @@ void Moha::prepare(juce::dsp::ProcessSpec& in_spec)
     hpf_pre.prepare(in_spec);
     lpf_pre.prepare(in_spec);
     lpf_shift.prepare(in_spec);
+    lpf_tone.prepare(in_spec);
+    midEnhancer.prepare(in_spec);
 
-    hpf_pre.highPassQuality = sqrt(2);
-    lpf_pre.lowPassQuality = sqrt(2);
-    lpf_shift.lowPassQuality = sqrt(2);
+    hpf_pre.highPassQuality = 1 / sqrt(2);
+    lpf_pre.lowPassQuality = 1 / sqrt(2);
+    midEnhancer.peakQuality = 4;
+    lpf_shift.lowPassQuality = 4;
+    lpf_tone.lowPassQuality = 2;
 
     hpf_pre.highPassFrequency = 20;
     lpf_pre.lowPassFrequency = 20000;
     lpf_shift.lowPassFrequency = 20000;
+    lpf_tone.lowPassFrequency = 16000;
+    midEnhancer.peakFrequency = 400;
 
-    secondary_buffer = new std::vector<float>(MAX_HISTORY_SAMPLES);
+    midEnhancer.peakGain = 1;
+
+    if (secondary_buffer != nullptr) delete secondary_buffer;
+    secondary_buffer = new std::vector<float>(INIT_HISTORY_LENGTH * sampleRate / 1000);
     std::fill(secondary_buffer->begin(), secondary_buffer->end(), 0);
 }
 
@@ -131,15 +188,31 @@ void Moha::process(juce::dsp::AudioBlock<float>& in_audioBlock) {
 
         GetHistoryAvgLevel(level_in_decibel);
         level_in_decibel = unity_to_dB(level_in_decibel);
-        
 
-        // 2. Pre-amp, PWM modulating and Post-amp
-        // Cast level to pwm frequency
-        pwmFrequency = pow_cast(
+        // 2. Volume-controlled auto-wah
+        // Cast level to cutoff frequency
+        
+        cutoffFrequency = 100 + pow_cast(limit(level_in_decibel, MIN_PWM_TRIGGER_LEVEL_IN_DB, 0), MIN_PWM_TRIGGER_LEVEL_IN_DB * 2, 0, 0.2) * 16000 * (1 - darkness);
+        lpf_shift.lowPassFrequency = cutoffFrequency;
+        lpf_shift.process(subblock[block_index]);
+        midEnhancer.peakFrequency = cutoffFrequency / 20;
+        midEnhancer.peakGain = lin_cast(limit(level_in_decibel, MIN_PWM_TRIGGER_LEVEL_IN_DB, 24), MIN_PWM_TRIGGER_LEVEL_IN_DB, 24, dB_to_unity(-30), dB_to_unity(30));
+        midEnhancer.process(subblock[block_index]);
+        
+        // 3. Pre-amp, PWM modulating and Post-amp
+        // Cast level to pfm frequency
+        /*
+        pwmFrequency = limit(pow_cast(
             level_in_decibel,
-            MIN_PWM_TRIGGER_LEVEL_IN_DB * pow_cast(sensitivity),
+            MIN_PWM_TRIGGER_LEVEL_IN_DB * pow_cast(1.01 - sensitivity),
             0,
-            (1 - speed) < 0.01 ? 0.01 : (1 - speed)) * MAX_PWM_FREQ;
+            (1 - speed) < 0.01 ? 0.01 : (1 - speed)) * (MAX_PWM_FREQ - LOW_PWM_FREQ), LOW_PWM_FREQ, MAX_PWM_FREQ);
+        */
+        // pwmFrequency = limit(lin_cast(level_in_decibel, MIN_PWM_TRIGGER_LEVEL_IN_DB * pow_cast(sensitivity), 0) * (MAX_PWM_FREQ - LOW_PWM_FREQ) + LOW_PWM_FREQ, LOW_PWM_FREQ, MAX_PWM_FREQ);
+
+        // GetHistoryAvgLevel(pwmFrequency);
+        pwmFrequency = lin_cast(level_in_decibel, MIN_PWM_TRIGGER_LEVEL_IN_DB * pow_cast(sensitivity), 0, LOW_PWM_FREQ, MAX_PWM_FREQ);
+
 
         for (size_t i = 0; i < subblock[block_index].getNumSamples(); ++i) {
             for (size_t j = 0; j < subblock[block_index].getNumChannels(); ++j) {
@@ -152,18 +225,9 @@ void Moha::process(juce::dsp::AudioBlock<float>& in_audioBlock) {
             // Modulate
             pwm(pwmFrequency, subblock[block_index], i);
         }
-
-        // 3. Volume-controlled auto-wah
-        // Cast level to cutoff frequency
-        double splitFreq = MIN_CUTOFF_FREQ + (1 - darkness) * (20000 - MIN_CUTOFF_FREQ);
-        cutoffFrequency = splitFreq + pow_cast(
-            level_in_decibel,
-            MIN_PWM_TRIGGER_LEVEL_IN_DB * pow_cast(sensitivity),
-            0,
-            1 + darkness)
-            * (20000 - splitFreq);
-        lpf_shift.lowPassFrequency = cutoffFrequency;
-        lpf_shift.process(subblock[block_index]);
     }
-    
+
+    // 4. Toning
+    lpf_tone.lowPassFrequency = toneFrequency;
+    lpf_tone.process(in_audioBlock);
 }

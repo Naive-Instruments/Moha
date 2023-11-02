@@ -16,18 +16,20 @@
 #include <limits>
 #include "DSP/HighPassFilter.h"
 #include "DSP/LowPassFilter.h"
+#include "DSP/PeakFilter.h"
 
-#define MAX_HISTORY_SAMPLES (144)
+#define INIT_HISTORY_LENGTH (1)   // Maximum history length in milliseconds
 #define MIN_CUTOFF_FREQ (200)
-#define MAX_PWM_FREQ (120)
-#define MIN_PWM_TRIGGER_LEVEL_IN_DB (-45)
+#define LOW_PWM_FREQ (0)
+#define MAX_PWM_FREQ (500)
+#define MIN_PWM_TRIGGER_LEVEL_IN_DB (-96)
 #define MAX_GAIN_RANGE (24)
-
 
 class Moha {
 private:
     HighPassFilter hpf_pre;
-    LowPassFilter lpf_pre, lpf_shift;
+    LowPassFilter lpf_pre, lpf_tone, lpf_shift;
+    PeakFilter midEnhancer;
     
     size_t sampleRate = 48000;
     size_t channel = 2;
@@ -47,6 +49,7 @@ private:
     double speed = 0.5;         // Response speed, range [0,1]
     double darkness = 0.5;      // Set cutoff requency moving speed
     double volume = 0;
+    double toneFrequency = 0.5; // Set post-process lowpass frequency
 
 public:
     Moha() {};
@@ -56,7 +59,7 @@ public:
     };
 
     // Tools
-    double limit(double& _in, double _min, double _max) {
+    double limit(double _in, double _min, double _max) {
         if (_in > _max) return _max;
         else if (_in < _min) return _min;
         else return _in;
@@ -81,12 +84,15 @@ public:
     }
 
     double lin_cast(double _in, double _min, double _max, double lower_boundary = 0, double upper_boundary = 1) {
-        if ((_min >= _max) || (_in < _min) || (_in > _max) || (lower_boundary >= upper_boundary)) return -std::numeric_limits<double>::infinity();
+        if ((_min >= _max) || (lower_boundary >= upper_boundary)) return -std::numeric_limits<double>::infinity();
         else {
+            if (_in < _min) _in = _min;
+            else if (_in > _max) _in = _max;
             return  lower_boundary + (_in - _min) / (_max - _min) * (upper_boundary - lower_boundary);
         }
     }
 
+    void pfm(double freq, juce::dsp::AudioBlock<float>& block, size_t& frameIndex);
     void pwm(double freq, juce::dsp::AudioBlock<float>& block, size_t& frameIndex);
 
     void GetBufferAvgLevel(juce::dsp::AudioBlock<float>& in_audioBlock, double& _out);
@@ -100,14 +106,21 @@ public:
     // Core process
     double GetGain() { return gain; }
     void SetGain(double _gain) { gain = limit(_gain, -MAX_GAIN_RANGE, MAX_GAIN_RANGE); }
+
     double GetSensitivity() { return sensitivity; }
     void SetSensitivity(double _sensitivity) { sensitivity = limit(_sensitivity, 0.01, 100) / 100; }
+
     double GetSpeed() { return speed; }
     void SetSpeed(double _speed) { speed = limit(_speed, 0.01, 100) / 100; }
+
     double GetDarkness() { return darkness; }
     void SetDarkness(double _darkness) { darkness = limit(_darkness, 0.01, 100) / 100; }
+
     double GetVolume() { return volume; }
-    void SetVolume(double _volume) { volume = limit(_volume, -144, 6); }
+    void SetVolume(double _volume) { volume = limit(_volume, -MAX_GAIN_RANGE, MAX_GAIN_RANGE); }
+
+    double GetTone() { return toneFrequency; }
+    void SetTone(double _toneFrequency) { toneFrequency = limit(_toneFrequency, 500, 20000); }
 
     void prepare(juce::dsp::ProcessSpec& in_spec);
     void process(juce::dsp::AudioBlock<float>& in_audioBlock);
