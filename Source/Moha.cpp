@@ -68,7 +68,7 @@ void Moha::pwm(double freq, juce::dsp::AudioBlock<float>& block, size_t& frameIn
 
     t_tick = 1.0 / sampleRate;
     k = log(10) / (rise_n_fall_time / 1000 * t_tick) * lin_cast(speed, 0, 1, 0.5, 1);
-    period = 1.0 / 20;   // Steady 100Hz pulse frequency
+    period = 1.0 / 100;   // Steady 100Hz pulse frequency
     duty_cycle = lin_cast(freq, LOW_PWM_FREQ, MAX_PWM_FREQ, 0, 1);
     if (duty_cycle > 0.7) duty_cycle = 1.0;
     else duty_cycle = lin_cast(duty_cycle, 0, 0.7);
