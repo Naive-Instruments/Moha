@@ -9,6 +9,10 @@
         <FILE id="LINvti" name="CustomStyle.h" compile="0" resource="0" file="Source/CustomStyle.h"/>
       </GROUP>
       <GROUP id="{D73D156C-4598-41B2-381C-0F88E26EDF02}" name="DSP">
+        <FILE id="Z5Xx3D" name="CircularBuffer.cpp" compile="1" resource="0"
+              file="Source/DSP/CircularBuffer.cpp"/>
+        <FILE id="L3MPol" name="CircularBuffer.h" compile="0" resource="0"
+              file="Source/DSP/CircularBuffer.h"/>
         <FILE id="MwycGW" name="HighPassFilter.cpp" compile="1" resource="0"
               file="Source/DSP/HighPassFilter.cpp"/>
         <FILE id="zm0v7S" name="HighPassFilter.h" compile="0" resource="0"
