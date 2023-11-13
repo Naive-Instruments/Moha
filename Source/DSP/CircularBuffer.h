@@ -19,12 +19,19 @@ public:
     void fillBuffer(juce::AudioBuffer<float>& buffer);
     juce::AudioBuffer<float> readFromBuffer(int numSamples);
 
+    void resetBufferFromCircularBuffer(juce::AudioBuffer<float>& buffer, int loopNumSamples);
+
     int getnumChannels() { return numChannels; }
     int getBufferSize() { return bufferSize; }
 
+    void continueFillBuffer() { isFillBuffer = true; }
+    void pauseFillBuffer() { isFillBuffer = false; }
+
 private:
     juce::AudioBuffer<float> circularBuffer;
-    int writePosition{ 0 };
+    int writePosition{ 0 }, readPosition{ 0 };
     int numChannels;
     int bufferSize;
+
+    bool isFillBuffer = true;
 };
