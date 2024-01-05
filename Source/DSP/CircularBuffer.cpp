@@ -108,7 +108,7 @@ void CircularBuffer::resetBufferFromCircularBuffer(juce::AudioBuffer<float>& buf
             readPosition = oriNumSamplesToEnd;
             writePosition = 0;
         }
-        // 如果需要被loop的buffer大于输入进来的需要被替换的buffer
+        // 如果需要被loop的buffer大于输入进来的需要被替换的buffer（大概率是进这）
         else
         {
             if (readPosition + buffer.getNumSamples() < numSamples)

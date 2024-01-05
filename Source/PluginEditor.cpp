@@ -65,12 +65,12 @@ void MohaAudioProcessorEditor::paint (juce::Graphics& g)
     g.setFont (32.0f);
     g.drawFittedText ("MOHA FROG PEDAL FX", getLocalBounds(), juce::Justification::centred, 1);
 
-    juce::Path valueTrack;
-    valueTrack.addRoundedRectangle(10, 10, 100, 20, 2);
-    shadow.render(g, valueTrack);
+    //juce::Path valueTrack;
+    //valueTrack.addRoundedRectangle(10, 10, 100, 20, 2);
+    //shadow.render(g, valueTrack);
 
-    g.setColour(juce::Colours::red);
-    g.fillPath(valueTrack);
+    //g.setColour(juce::Colours::red);
+    //g.fillPath(valueTrack);
 }
 
 void MohaAudioProcessorEditor::resized()

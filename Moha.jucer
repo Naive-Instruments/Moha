@@ -24,6 +24,7 @@
         <FILE id="goOH3x" name="NotchFilter.h" compile="0" resource="0" file="Source/DSP/NotchFilter.h"/>
         <FILE id="wKexCt" name="PeakFilter.cpp" compile="1" resource="0" file="Source/DSP/PeakFilter.cpp"/>
         <FILE id="AfkIf0" name="PeakFilter.h" compile="0" resource="0" file="Source/DSP/PeakFilter.h"/>
+        <FILE id="tmA3y6" name="WavHandler.h" compile="0" resource="0" file="Source/DSP/WavHandler.h"/>
       </GROUP>
       <FILE id="gIBjHU" name="Moha.cpp" compile="1" resource="0" file="Source/Moha.cpp"/>
       <FILE id="mtcD8P" name="Moha.h" compile="0" resource="0" file="Source/Moha.h"/>
@@ -51,7 +52,6 @@
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
-    <MODULE id="melatonin_blur" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
   </MODULES>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
   <EXPORTFORMATS>
@@ -74,7 +74,6 @@
         <MODULEPATH id="juce_graphics" path="C:/JUCE/modules"/>
         <MODULEPATH id="juce_gui_basics" path="C:/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="C:/JUCE/modules"/>
-        <MODULEPATH id="melatonin_blur" path="../../Github"/>
       </MODULEPATHS>
     </VS2022>
   </EXPORTFORMATS>
