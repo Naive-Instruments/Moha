@@ -83,7 +83,7 @@ juce::AudioBuffer<float> CircularBuffer::readFromBuffer(int numSamples)
 
 void CircularBuffer::resetBufferFromCircularBuffer(juce::AudioBuffer<float>& buffer, int numSamples)
 {
-    pauseFillBuffer();
+    //pauseFillBuffer();
 
     buffer.clear();
 
@@ -99,27 +99,30 @@ void CircularBuffer::resetBufferFromCircularBuffer(juce::AudioBuffer<float>& buf
             // 猛猛塞
             while (writePosition + numSamples < buffer.getNumSamples())
             {
-                buffer.copyFrom(channel, writePosition, loopBuffer, 0, readPosition, loopBuffer.getNumSamples() - readPosition);
+                buffer.copyFrom(channel, writePosition, loopBuffer, channel, readPosition, loopBuffer.getNumSamples() - readPosition);
                 writePosition += loopBuffer.getNumSamples();
                 readPosition = 0;
             }
             int oriNumSamplesToEnd = buffer.getNumSamples() - writePosition;
-            buffer.copyFrom(channel, writePosition, loopBuffer, 0, 0, oriNumSamplesToEnd);
+            buffer.copyFrom(channel, writePosition, loopBuffer, channel, 0, oriNumSamplesToEnd);
             readPosition = oriNumSamplesToEnd;
             writePosition = 0;
         }
         // 如果需要被loop的buffer大于输入进来的需要被替换的buffer
         else
         {
-            while (readPosition + buffer.getNumSamples() < numSamples)
+            if (readPosition + buffer.getNumSamples() < numSamples)
             {
-                buffer.copyFrom(channel, 0, loopBuffer, 0, readPosition, buffer.getNumSamples());
+                buffer.copyFrom(channel, 0, loopBuffer, channel, readPosition, buffer.getNumSamples());
                 readPosition += buffer.getNumSamples();
             }
-            int loopNumSamplesToEnd = numSamples - readPosition;
-            buffer.copyFrom(channel, 0, loopBuffer, 0, readPosition, loopNumSamplesToEnd);
-            readPosition = buffer.getNumSamples() - loopNumSamplesToEnd;
-            buffer.copyFrom(channel, loopNumSamplesToEnd, loopBuffer, 0, 0, readPosition);
+            else
+            {
+                int loopNumSamplesToEnd = numSamples - readPosition;
+                buffer.copyFrom(channel, 0, loopBuffer, channel, readPosition, loopNumSamplesToEnd);
+                readPosition = buffer.getNumSamples() - loopNumSamplesToEnd;
+                buffer.copyFrom(channel, loopNumSamplesToEnd, loopBuffer, channel, 0, readPosition);
+            }
         }
     }
 }

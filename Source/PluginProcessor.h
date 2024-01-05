@@ -68,7 +68,7 @@ private:
     //==============================================================================
     // Components
     Moha moha_fx;
-    CircularBuffer circularBuffer{ 2, 48000 };
+    CircularBuffer circularBuffer{ 2, 96000 };
 
     double makeUpGain = 1;
 
