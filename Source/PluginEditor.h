@@ -71,5 +71,7 @@ private:
     void createLabel(juce::Label& label, juce::String text,
         juce::Component* slider);
 
+    melatonin::DropShadow shadow = { { juce::Colours::black, 8, { -2, 0 } } };
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MohaAudioProcessorEditor)
 };

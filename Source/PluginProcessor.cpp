@@ -93,8 +93,6 @@ void MohaAudioProcessor::changeProgramName (int index, const juce::String& newNa
 //==============================================================================
 void MohaAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
     juce::dsp::ProcessSpec spec;
     spec.maximumBlockSize = samplesPerBlock;
     spec.sampleRate = sampleRate;
@@ -141,12 +139,6 @@ void MohaAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
@@ -170,14 +162,12 @@ void MohaAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
     moha_fx.SetVolume(volume);
     moha_fx.SetTone(toneFreq);
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
     juce::dsp::AudioBlock<float> block(buffer);
-    moha_fx.process(block);
+    //moha_fx.process(block);
+    float loopSamples = *apvts.getRawParameterValue("LoopSamples");
+    circularBuffer.fillBuffer(buffer);
+    circularBuffer.resetBufferFromCircularBuffer(buffer, loopSamples);
+
 }
 
 //==============================================================================
@@ -189,6 +179,7 @@ bool MohaAudioProcessor::hasEditor() const
 juce::AudioProcessorEditor* MohaAudioProcessor::createEditor()
 {
     return new MohaAudioProcessorEditor (*this);
+    //return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
@@ -236,6 +227,10 @@ APVTS::ParameterLayout MohaAudioProcessor::createParameterLayout()
     layout.add(std::make_unique<AudioParameterFloat>(ParameterID{ "Volume", 1 },
         "Volume",
         NormalisableRange<float>(-MAX_GAIN_RANGE, MAX_GAIN_RANGE, .1f, 1.f), 0.f));
+
+    layout.add(std::make_unique<AudioParameterFloat>(ParameterID{ "LoopSamples", 1 },
+        "LoopSamples",
+        NormalisableRange<float>(512, 24000, 1, 1.f), 2048));
 
     return layout;
 }
