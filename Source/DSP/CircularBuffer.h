@@ -29,7 +29,8 @@ public:
 
 private:
     juce::AudioBuffer<float> circularBuffer;
-    int writePosition{ 0 }, readPosition{ 0 };
+    int fillWritePosition{ 0 };
+    int resetWritePosition{ 0 }, resetReadPosition{ 0 };
     int numChannels;
     int bufferSize;
 
