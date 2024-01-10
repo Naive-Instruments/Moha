@@ -164,17 +164,20 @@ void MohaAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
 
     juce::dsp::AudioBlock<float> block(buffer);
     //moha_fx.process(block);
+
     float loopSamples = *apvts.getRawParameterValue("LoopSamples");
-    
-    int loopSwitch = *apvts.getRawParameterValue("LoopSwitch");
-    if (loopSwitch == 0)
-    {
-		circularBuffer.fillBuffer(buffer);
-	}
-    else if (loopSwitch == 1)
+    bool loopSwitch = *apvts.getRawParameterValue("LoopSwitch");
+
+	circularBuffer.fillBuffer(buffer);
+
+    if (loopSwitch == true)
     {
         circularBuffer.resetBufferFromCircularBuffer(buffer, loopSamples);
 	}
+    else
+    {
+        circularBuffer.isLooping = false;
+    }
 }
 
 //==============================================================================
@@ -239,9 +242,9 @@ APVTS::ParameterLayout MohaAudioProcessor::createParameterLayout()
         "LoopSamples",
         NormalisableRange<float>(512, 96000, 1, 1.f), 24000));
 
-    layout.add(std::make_unique<AudioParameterFloat>(ParameterID{ "LoopSwitch", 1 },
+    layout.add(std::make_unique<AudioParameterBool>(ParameterID{ "LoopSwitch", 1 },
         "LoopSwitch",
-        NormalisableRange<float>(0, 1, 1, 1.f), 0));
+        false));
 
     return layout;
 }

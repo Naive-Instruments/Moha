@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="XpMCYw" name="Moha" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
+              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
+              cppLanguageStandard="20">
   <MAINGROUP id="QHHdm7" name="Moha">
     <GROUP id="{0D2D17B4-B6DC-BB3C-2030-277A45B115FD}" name="Source">
       <GROUP id="{76A084FF-F31F-CC06-AABF-6420CB930843}" name="GUI">
