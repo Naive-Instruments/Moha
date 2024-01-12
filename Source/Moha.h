@@ -21,7 +21,7 @@
 #define INIT_HISTORY_LENGTH (1)   // Maximum history length in milliseconds
 #define MIN_CUTOFF_FREQ (200)
 #define LOW_PWM_FREQ (1)
-#define MAX_PWM_FREQ (500)
+#define MAX_PWM_FREQ (90)
 #define MIN_PWM_TRIGGER_LEVEL_IN_DB (-96)
 #define MAX_GAIN_RANGE (24)
 

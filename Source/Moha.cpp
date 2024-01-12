@@ -58,9 +58,9 @@ void Moha::pfm(double freq, juce::dsp::AudioBlock<float>& block, size_t& frameIn
 
 void Moha::pwm(double freq, juce::dsp::AudioBlock<float>& block, size_t& frameIndex, double& preamp)
 {
-    static double ceil = 0;
+    static double ceil = 1;
     static bool is_rising = true;
-    const double k = 120397.28;    // Slew rate: 0.7V/us
+    const double k = 1.2039728;    // Slew rate: 0.7V/us
     static double t_tick = 0.01;
     static double period = 0.01;
     static double duty_cycle = 0.5;
@@ -186,10 +186,13 @@ void Moha::process(juce::dsp::AudioBlock<float>& in_audioBlock) {
         // 3. Volume-controlled auto-wah
 
         // Cast level to cutoff frequency
-        cutoffFrequency = 100 + pow_cast(limit(level_in_decibel, MIN_PWM_TRIGGER_LEVEL_IN_DB, 0), MIN_PWM_TRIGGER_LEVEL_IN_DB * 2, 0, 0.2) * 16000 * (1 - darkness);
+        auto dest_cutoffFrequency = 500 + pow_cast(limit(level_in_decibel, MIN_PWM_TRIGGER_LEVEL_IN_DB, 0), MIN_PWM_TRIGGER_LEVEL_IN_DB, 0, 5) * 20000 * (1 - darkness);
+        cutoffFrequency += (dest_cutoffFrequency - cutoffFrequency) / 100;
+        std::string dbg = "CutoffFrequency: " + std::to_string(cutoffFrequency);
+        DBG(dbg);
         lpf_shift.lowPassFrequency = cutoffFrequency;
         lpf_shift.process(subblock[block_index]);
-        midEnhancer.peakFrequency = cutoffFrequency / 20;
+        midEnhancer.peakFrequency = cutoffFrequency * 0.75;
         midEnhancer.peakGain = lin_cast(limit(level_in_decibel, MIN_PWM_TRIGGER_LEVEL_IN_DB, 24), MIN_PWM_TRIGGER_LEVEL_IN_DB, 24, dB_to_unity(-30), dB_to_unity(6));
         midEnhancer.process(subblock[block_index]);
         
