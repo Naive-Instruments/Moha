@@ -124,22 +124,42 @@ void CustomLookAndFeel::drawLinearSlider(juce::Graphics& g, int x, int y, int wi
     g.setColour(grey);
     g.fillPath(baseLine);
     //g.fillRect(bounds);
+    
 
-    auto sliderRadius = (float)6.5f;//(getSliderThumbRadius (slider) - 2);
+    auto thumbX = juce::jmap(sliderPos, 0.f, 200.f, bounds.getX(), bounds.getWidth() - 12.f);
 
+    // Left value
+    auto leftColour = juce::Colour::fromFloatRGBA(1.0f, 0.71f, 0.2f, 1.0f);
+    g.setColour(leftColour);
+    juce::Path leftPath;
+    leftPath.addRoundedRectangle(bounds.getX() + 6.f, bounds.getHeight() * 0.5f + baseLineHeight * 0.5f, thumbX, baseLineHeight, 2.f);
+    g.fillPath(leftPath);
+    juce::Path leftBlurPath;
+    juce::PathStrokeType leftStrokeType(2.f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded);
+    leftStrokeType.createStrokedPath(leftBlurPath, leftPath);
+    melatonin::DropShadow leftBlurShadow = { leftColour, 12, { 0, 0 }, 0 };
+    leftBlurShadow.render(g, leftBlurPath);
+
+    // Right value
+    auto rightColour = juce::Colour::fromFloatRGBA(0.43f, 0.83f, 1.0f, 1.0f);
+    g.setColour(rightColour);
+    juce::Path rightPath;
+    rightPath.addRoundedRectangle(thumbX, bounds.getHeight() * 0.5f + baseLineHeight * 0.5f, bounds.getWidth() - 6.f - thumbX, baseLineHeight, 2.f);
+    g.fillPath(rightPath);
+    juce::Path rightBlurPath;
+    juce::PathStrokeType rightStrokeType(2.f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded);
+    rightStrokeType.createStrokedPath(rightBlurPath, rightPath);
+    melatonin::DropShadow rightBlurShadow = { rightColour, 12, { 0, 0 }, 0 };
+    rightBlurShadow.render(g, rightBlurPath);
+
+    // Thumb
     auto isDownOrDragging = slider.isEnabled() && (slider.isMouseOverOrDragging() || slider.isMouseButtonDown());
-
-    auto knobColour = slider.findColour(juce::Slider::thumbColourId);
+    auto thumbColour = slider.findColour(juce::Slider::thumbColourId);
     //    .withMultipliedSaturation((slider.hasKeyboardFocus(false) || isDownOrDragging) ? 1.3f : 0.9f)
     //    .withMultipliedAlpha(slider.isEnabled() ? 1.0f : 0.7f);
-
     juce::Path thumb;
-    thumb.addEllipse(juce::jmap(sliderPos, 0.f, 200.f, bounds.getX(), bounds.getWidth() - 12.f), bounds.getHeight() * 0.5f - 1.5f, 12.f, 12.f);
+    thumb.addEllipse(thumbX, bounds.getHeight() * 0.5f - 1.5f, 12.f, 12.f);
     //thumb.addEllipse(sliderPos, bounds.getHeight() * 0.5f - 1.f, 12.f, 12.f);
-
-    g.setColour(knobColour);
+    g.setColour(thumbColour);
     g.fillPath(thumb);
-
-    g.setColour(knobColour.brighter());
-    //g.strokePath(p, juce::PathStrokeType(outlineThickness));
 }
