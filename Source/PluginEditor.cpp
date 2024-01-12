@@ -17,6 +17,9 @@ MohaAudioProcessorEditor::MohaAudioProcessorEditor (MohaAudioProcessor& p)
     // editor's size to whatever you need it to be.
     setSize (800, 400);
 
+    //juce::LookAndFeel::setDefaultLookAndFeel(&customLookAndFeel);
+    //juce::LookAndFeel::setDefaultLookAndFeel(&customStyle);
+
     // Knobs
     createSlider(gainSlider, "");
     createLabel(gainLabel, "Gain", &gainSlider);
@@ -49,6 +52,8 @@ MohaAudioProcessorEditor::MohaAudioProcessorEditor (MohaAudioProcessor& p)
     createSlider(volumeSlider, " dB");
     createLabel(volumeLabel, "Volume", &volumeSlider);
     volumeSliderAttachment = std::make_unique<APVTS::SliderAttachment>(audioProcessor.apvts, "Volume", volumeSlider);
+
+    addAndMakeVisible(shadowSlider);
 }
 
 MohaAudioProcessorEditor::~MohaAudioProcessorEditor()
@@ -58,19 +63,11 @@ MohaAudioProcessorEditor::~MohaAudioProcessorEditor()
 //==============================================================================
 void MohaAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    g.fillAll (juce::Colour::fromFloatRGBA(0.f, 0.f, 0.f, 0.65f));
 
     g.setColour (juce::Colours::white);
     g.setFont (32.0f);
     g.drawFittedText ("MOHA FROG PEDAL FX", getLocalBounds(), juce::Justification::centred, 1);
-
-    //juce::Path valueTrack;
-    //valueTrack.addRoundedRectangle(10, 10, 100, 20, 2);
-    //shadow.render(g, valueTrack);
-
-    //g.setColour(juce::Colours::red);
-    //g.fillPath(valueTrack);
 }
 
 void MohaAudioProcessorEditor::resized()
@@ -80,8 +77,10 @@ void MohaAudioProcessorEditor::resized()
     const int topBottomMargin = 15;
     const int leftRightMargin = 15;
 
-    const int dialWidth = 80;
+    const int dialWidth = 90;
     const int dialHeight = 90;
+
+    shadowSlider.setBounds(leftRightMargin, topBottomMargin, dialWidth, dialHeight);
 
     gainSlider.setBounds(leftRightMargin + dialWidth - 6, getHeight() - topBottomMargin - dialHeight, dialWidth, dialHeight);
 

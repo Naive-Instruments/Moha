@@ -163,7 +163,7 @@ void MohaAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
     moha_fx.SetTone(toneFreq);
 
     juce::dsp::AudioBlock<float> block(buffer);
-    //moha_fx.process(block);
+    moha_fx.process(block);
 
     float loopSamples = *apvts.getRawParameterValue("LoopSamples");
     bool loopSwitch = *apvts.getRawParameterValue("LoopSwitch");
@@ -188,8 +188,8 @@ bool MohaAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* MohaAudioProcessor::createEditor()
 {
-    //return new MohaAudioProcessorEditor (*this);
-    return new juce::GenericAudioProcessorEditor(*this);
+    return new MohaAudioProcessorEditor (*this);
+    //return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================

@@ -6,8 +6,19 @@
   <MAINGROUP id="QHHdm7" name="Moha">
     <GROUP id="{0D2D17B4-B6DC-BB3C-2030-277A45B115FD}" name="Source">
       <GROUP id="{76A084FF-F31F-CC06-AABF-6420CB930843}" name="GUI">
-        <FILE id="xi28PJ" name="CustomStyle.cpp" compile="1" resource="0" file="Source/CustomStyle.cpp"/>
-        <FILE id="LINvti" name="CustomStyle.h" compile="0" resource="0" file="Source/CustomStyle.h"/>
+        <FILE id="hAKr2M" name="CustomLookAndFeel.cpp" compile="1" resource="0"
+              file="Source/GUI/CustomLookAndFeel.cpp"/>
+        <FILE id="EePNkd" name="CustomLookAndFeel.h" compile="0" resource="0"
+              file="Source/GUI/CustomLookAndFeel.h"/>
+        <FILE id="IZxw9e" name="CustomStyle.cpp" compile="1" resource="0" file="Source/GUI/CustomStyle.cpp"/>
+        <FILE id="cELaNc" name="CustomStyle.h" compile="0" resource="0" file="Source/GUI/CustomStyle.h"/>
+        <FILE id="r8O4Yi" name="NameLabel.h" compile="0" resource="0" file="Source/GUI/NameLabel.h"/>
+        <FILE id="vMDRO4" name="RotarySlider.cpp" compile="1" resource="0"
+              file="Source/GUI/RotarySlider.cpp"/>
+        <FILE id="vH5Jlq" name="RotarySlider.h" compile="0" resource="0" file="Source/GUI/RotarySlider.h"/>
+        <FILE id="EoNows" name="ShadowSlider.cpp" compile="1" resource="0"
+              file="Source/GUI/ShadowSlider.cpp"/>
+        <FILE id="iQ7y3c" name="ShadowSlider.h" compile="0" resource="0" file="Source/GUI/ShadowSlider.h"/>
       </GROUP>
       <GROUP id="{D73D156C-4598-41B2-381C-0F88E26EDF02}" name="DSP">
         <FILE id="Z5Xx3D" name="CircularBuffer.cpp" compile="1" resource="0"
@@ -55,6 +66,7 @@
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="melatonin_blur" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
   </MODULES>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
   <EXPORTFORMATS>
@@ -77,6 +89,7 @@
         <MODULEPATH id="juce_graphics" path="C:/JUCE/modules"/>
         <MODULEPATH id="juce_gui_basics" path="C:/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="C:/JUCE/modules"/>
+        <MODULEPATH id="melatonin_blur" path="../../Github"/>
       </MODULEPATHS>
     </VS2022>
   </EXPORTFORMATS>

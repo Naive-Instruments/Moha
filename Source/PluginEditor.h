@@ -10,7 +10,10 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
-#include "CustomStyle.h"
+#include "GUI/CustomStyle.h"
+#include "GUI/ShadowSlider.h"
+#include "GUI/CustomLookAndFeel.h"
+#include "GUI/RotarySlider.h"
 
 //==============================================================================
 /**
@@ -29,41 +32,43 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     MohaAudioProcessor& audioProcessor;
-    juce::CustomStyle customStyle;
+
+    CustomLookAndFeel customLookAndFeel;
+    //juce::CustomStyle customStyle;
 
     using APVTS = juce::AudioProcessorValueTreeState;
 
     // Display component handles
 
-    juce::Slider gainSlider;
+    RotarySlider gainSlider;
     juce::Label gainLabel;
     std::unique_ptr<APVTS::SliderAttachment> gainSliderAttachment;
 
-    juce::Slider preHighPassFreqSlider;
+    RotarySlider preHighPassFreqSlider;
     juce::Label preHighPassFreqLabel;
     std::unique_ptr<APVTS::SliderAttachment> preHighPassFreqSliderAttachment;
 
-    juce::Slider preLowPassFreqSlider;
+    RotarySlider preLowPassFreqSlider;
     juce::Label preLowPassFreqLabel;
     std::unique_ptr<APVTS::SliderAttachment> preLowPassFreqSliderAttachment;
 
-    juce::Slider toneFreqSlider;
+    RotarySlider toneFreqSlider;
     juce::Label toneFreqLabel;
     std::unique_ptr<APVTS::SliderAttachment> toneFreqSliderAttachment;
 
-    juce::Slider sensitivitySlider;
+    RotarySlider sensitivitySlider;
     juce::Label sensitivityLabel;
     std::unique_ptr<APVTS::SliderAttachment> sensitivitySliderAttachment;
 
-    juce::Slider speedSlider;
+    RotarySlider speedSlider;
     juce::Label speedLabel;
     std::unique_ptr<APVTS::SliderAttachment> speedSliderAttachment;
 
-    juce::Slider darknessSlider;
+    RotarySlider darknessSlider;
     juce::Label darknessLabel;
     std::unique_ptr<APVTS::SliderAttachment> darknessSliderAttachment;
 
-    juce::Slider volumeSlider;
+    RotarySlider volumeSlider;
     juce::Label volumeLabel;
     std::unique_ptr<APVTS::SliderAttachment> volumeSliderAttachment;
 
@@ -71,7 +76,8 @@ private:
     void createLabel(juce::Label& label, juce::String text,
         juce::Component* slider);
 
-    //melatonin::DropShadow shadow = { { juce::Colours::black, 8, { -2, 0 } } };
+    ShadowSlider shadowSlider;
+    RotarySlider rotarySlider;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MohaAudioProcessorEditor)
 };
