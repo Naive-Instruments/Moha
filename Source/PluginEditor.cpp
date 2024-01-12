@@ -38,18 +38,22 @@ MohaAudioProcessorEditor::MohaAudioProcessorEditor (MohaAudioProcessor& p)
     toneFreqSliderAttachment = std::make_unique<APVTS::SliderAttachment>(audioProcessor.apvts, "ToneFreq", toneFreqSlider);
     
     createSlider(sensitivitySlider, " %");
+
     createLabel(sensitivityLabel, "Sensitivity", &sensitivitySlider);
     sensitivitySliderAttachment = std::make_unique<APVTS::SliderAttachment>(audioProcessor.apvts, "Sensitivity", sensitivitySlider);
     
     createSlider(speedSlider, " %");
+    toneFreqSlider.setValueArcColour(juce::Colour::fromFloatRGBA(0.43f, 0.83f, 1.0f, 1.0f));
     createLabel(speedLabel, "Speed", &speedSlider);
     speedSliderAttachment = std::make_unique<APVTS::SliderAttachment>(audioProcessor.apvts, "Speed", speedSlider);
     
     createSlider(darknessSlider, " %");
+    darknessSlider.setValueArcColour(juce::Colour::fromFloatRGBA(0.34f, 0.74f, 0.66f, 1.0f));
     createLabel(darknessLabel, "Darkness", &darknessSlider);
     darknessSliderAttachment = std::make_unique<APVTS::SliderAttachment>(audioProcessor.apvts, "Darkness", darknessSlider);
 
     createSlider(volumeSlider, " dB");
+    volumeSlider.setValueArcColour(juce::Colour::fromFloatRGBA(1.0f, 0.71f, 0.2f, 1.0f));
     createLabel(volumeLabel, "Volume", &volumeSlider);
     volumeSliderAttachment = std::make_unique<APVTS::SliderAttachment>(audioProcessor.apvts, "Volume", volumeSlider);
 
@@ -64,6 +68,7 @@ MohaAudioProcessorEditor::~MohaAudioProcessorEditor()
 void MohaAudioProcessorEditor::paint (juce::Graphics& g)
 {
     g.fillAll (juce::Colour::fromFloatRGBA(0.f, 0.f, 0.f, 0.65f));
+    //g.fillAll(juce::Colours::white);
 
     g.setColour (juce::Colours::white);
     g.setFont (32.0f);

@@ -23,7 +23,7 @@ void CustomLookAndFeel::drawRotarySlider(juce::Graphics& g, int x, int y, int wi
     auto fill = slider.findColour(juce::Slider::rotarySliderFillColourId);
     //auto fill = juce::Colours::darkgrey;
 
-    auto bounds = juce::Rectangle<float>(x, y, width, height).reduced(2.0f);
+    auto bounds = juce::Rectangle<float>(x, y, width, height).reduced(6.0f);
     auto radius = juce::jmin(bounds.getWidth(), bounds.getHeight()) / 2.0f;
     auto toAngle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
     auto lineW = radius * 0.085f;
@@ -57,13 +57,8 @@ void CustomLookAndFeel::drawRotarySlider(juce::Graphics& g, int x, int y, int wi
 
     //g.setColour (fill.withAlpha (alpha).brighter (brightness));
     g.setColour(fill);
-    
-    juce::Path valueTrack;
-    valueTrack.addRoundedRectangle(10, 10, 100, 20, 2);
-    melatonin::DropShadow shadow = { juce::Colours::black, 8, { -2, 0 } };
-    //shadow.render(g, valueTrack);
-
-    g.strokePath(valueArc, juce::PathStrokeType(lineW, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+    juce::PathStrokeType strokeType(lineW, juce::PathStrokeType::curved, juce::PathStrokeType::rounded);
+    g.strokePath(valueArc, strokeType);
 
     auto thumbWidth = lineW * 2.0f;
  
@@ -76,6 +71,28 @@ void CustomLookAndFeel::drawRotarySlider(juce::Graphics& g, int x, int y, int wi
     
     g.setColour(juce::Colours::black);
     g.fillPath(thumb, juce::AffineTransform::rotation(toAngle + 3.f).translated(bounds.getCentre()));
+
+    juce::Path valueBlurPath;
+    strokeType.createStrokedPath(valueBlurPath, valueArc);
+    g.setColour(fill);
+    melatonin::DropShadow valueBlurShadow = { fill, 12, { 0, 0 }, 0 };
+    valueBlurShadow.render(g, valueBlurPath);
+
+    juce::Path SliderBlurArc;
+    juce::Path sliderBlurPath;
+    SliderBlurArc.addCentredArc(bounds.getCentreX(),
+                                bounds.getCentreY(),
+                                arcRadius - 3.f,
+                                arcRadius - 3.f,
+                                0.0f,
+                                juce::degreesToRadians(155.f),
+                                juce::degreesToRadians(205.f),
+                                true);
+
+    strokeType.createStrokedPath(sliderBlurPath, SliderBlurArc);
+    g.setColour(juce::Colours::black);
+    melatonin::DropShadow sliderBlurShadow = { juce::Colours::black, 6, { 0, 0 }, 0 };
+	sliderBlurShadow.render(g, sliderBlurPath);   
 }
 
 juce::Label* CustomLookAndFeel::createSliderTextBox (juce::Slider& slider)

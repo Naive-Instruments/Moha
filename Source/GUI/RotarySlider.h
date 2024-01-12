@@ -10,6 +10,8 @@ public:
     ~RotarySlider() override;
     
     void paint (juce::Graphics& g) override;
+
+    void setValueArcColour(juce::Colour colour);
     
     void mouseDown (const juce::MouseEvent& event) override;
     void mouseUp (const juce::MouseEvent& event) override;
@@ -17,10 +19,12 @@ public:
 private:
     CustomLookAndFeel customLookAndFeel;
     
-    juce::Colour blue      = juce::Colour::fromFloatRGBA (0.43f, 0.83f, 1.0f, 1.0f);
-    juce::Colour grey      = juce::Colour::fromFloatRGBA (0.42f, 0.42f, 0.42f, 1.0f);
-    juce::Colour blackGrey = juce::Colour::fromFloatRGBA (0.2f,  0.2f,  0.2f, 1.0f);
-    juce::Colour offWhite  = juce::Colour::fromFloatRGBA (0.83f, 0.84f, 0.9f, 1.f);
+    juce::Colour blue      = juce::Colour::fromFloatRGBA(0.43f, 0.83f, 1.0f, 1.0f);
+    juce::Colour green     = juce::Colour::fromFloatRGBA(0.34f, 0.74f, 0.66f, 1.0f);
+    juce::Colour yellow    = juce::Colour::fromFloatRGBA(1.0f, 0.71f, 0.2f, 1.0f);
+    juce::Colour grey      = juce::Colour::fromFloatRGBA(0.42f, 0.42f, 0.42f, 1.0f);
+    juce::Colour blackGrey = juce::Colour::fromFloatRGBA(0.2f,  0.2f,  0.2f, 1.0f);
+    juce::Colour offWhite  = juce::Colour::fromFloatRGBA(0.83f, 0.84f, 0.9f, 1.f);
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RotarySlider)
 };

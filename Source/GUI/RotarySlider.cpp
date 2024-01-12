@@ -35,6 +35,11 @@ RotarySlider::~RotarySlider()
 {
 }
 
+void RotarySlider::setValueArcColour(juce::Colour colour)
+{
+    setColour(juce::Slider::rotarySliderFillColourId, colour);
+}
+
 void RotarySlider::paint (juce::Graphics& g)
 {
     juce::Slider::paint (g);
