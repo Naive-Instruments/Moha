@@ -12,13 +12,13 @@
               file="Source/GUI/CustomLookAndFeel.h"/>
         <FILE id="IZxw9e" name="CustomStyle.cpp" compile="1" resource="0" file="Source/GUI/CustomStyle.cpp"/>
         <FILE id="cELaNc" name="CustomStyle.h" compile="0" resource="0" file="Source/GUI/CustomStyle.h"/>
+        <FILE id="mZI6Ij" name="LinearSlider.cpp" compile="1" resource="0"
+              file="Source/GUI/LinearSlider.cpp"/>
+        <FILE id="tGqI02" name="LinearSlider.h" compile="0" resource="0" file="Source/GUI/LinearSlider.h"/>
         <FILE id="r8O4Yi" name="NameLabel.h" compile="0" resource="0" file="Source/GUI/NameLabel.h"/>
         <FILE id="vMDRO4" name="RotarySlider.cpp" compile="1" resource="0"
               file="Source/GUI/RotarySlider.cpp"/>
         <FILE id="vH5Jlq" name="RotarySlider.h" compile="0" resource="0" file="Source/GUI/RotarySlider.h"/>
-        <FILE id="EoNows" name="ShadowSlider.cpp" compile="1" resource="0"
-              file="Source/GUI/ShadowSlider.cpp"/>
-        <FILE id="iQ7y3c" name="ShadowSlider.h" compile="0" resource="0" file="Source/GUI/ShadowSlider.h"/>
       </GROUP>
       <GROUP id="{D73D156C-4598-41B2-381C-0F88E26EDF02}" name="DSP">
         <FILE id="Z5Xx3D" name="CircularBuffer.cpp" compile="1" resource="0"

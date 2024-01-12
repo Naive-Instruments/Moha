@@ -85,8 +85,8 @@ void CustomLookAndFeel::drawRotarySlider(juce::Graphics& g, int x, int y, int wi
                                 arcRadius - 3.f,
                                 arcRadius - 3.f,
                                 0.0f,
-                                juce::degreesToRadians(155.f),
-                                juce::degreesToRadians(205.f),
+                                juce::degreesToRadians(150.f),
+                                juce::degreesToRadians(210.f),
                                 true);
 
     strokeType.createStrokedPath(sliderBlurPath, SliderBlurArc);
@@ -106,4 +106,60 @@ juce::Label* CustomLookAndFeel::createSliderTextBox (juce::Slider& slider)
     l->setFont (15);
     
     return l;
+}
+
+void CustomLookAndFeel::drawLinearSlider(juce::Graphics& g, int x, int y, int width, int height,
+                                         float sliderPos,
+                                         float minSliderPos,
+                                         float maxSliderPos,
+                                         juce::Slider::SliderStyle style, juce::Slider& slider)
+{
+    auto bounds = juce::Rectangle<float>(x, y, width, height);
+
+    juce::Path baseLine;
+    float baseLineHeight = 4.f;
+
+    baseLine.addRoundedRectangle(bounds.getX() + 6.f, bounds.getHeight() * 0.5f + baseLineHeight * 0.5f, bounds.getWidth() - 12.f, baseLineHeight, 2.f);
+
+    g.setColour(grey);
+    g.fillPath(baseLine);
+    //g.fillRect(bounds);
+    
+
+    auto thumbX = juce::jmap(sliderPos, 0.f, 200.f, bounds.getX(), bounds.getWidth() - 12.f);
+
+    // Left value
+    auto leftColour = juce::Colour::fromFloatRGBA(1.0f, 0.71f, 0.2f, 1.0f);
+    g.setColour(leftColour);
+    juce::Path leftPath;
+    leftPath.addRoundedRectangle(bounds.getX() + 6.f, bounds.getHeight() * 0.5f + baseLineHeight * 0.5f, thumbX, baseLineHeight, 2.f);
+    g.fillPath(leftPath);
+    juce::Path leftBlurPath;
+    juce::PathStrokeType leftStrokeType(2.f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded);
+    leftStrokeType.createStrokedPath(leftBlurPath, leftPath);
+    melatonin::DropShadow leftBlurShadow = { leftColour, 12, { 0, 0 }, 0 };
+    leftBlurShadow.render(g, leftBlurPath);
+
+    // Right value
+    auto rightColour = juce::Colour::fromFloatRGBA(0.43f, 0.83f, 1.0f, 1.0f);
+    g.setColour(rightColour);
+    juce::Path rightPath;
+    rightPath.addRoundedRectangle(thumbX, bounds.getHeight() * 0.5f + baseLineHeight * 0.5f, bounds.getWidth() - 6.f - thumbX, baseLineHeight, 2.f);
+    g.fillPath(rightPath);
+    juce::Path rightBlurPath;
+    juce::PathStrokeType rightStrokeType(2.f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded);
+    rightStrokeType.createStrokedPath(rightBlurPath, rightPath);
+    melatonin::DropShadow rightBlurShadow = { rightColour, 12, { 0, 0 }, 0 };
+    rightBlurShadow.render(g, rightBlurPath);
+
+    // Thumb
+    auto isDownOrDragging = slider.isEnabled() && (slider.isMouseOverOrDragging() || slider.isMouseButtonDown());
+    auto thumbColour = slider.findColour(juce::Slider::thumbColourId);
+    //    .withMultipliedSaturation((slider.hasKeyboardFocus(false) || isDownOrDragging) ? 1.3f : 0.9f)
+    //    .withMultipliedAlpha(slider.isEnabled() ? 1.0f : 0.7f);
+    juce::Path thumb;
+    thumb.addEllipse(thumbX, bounds.getHeight() * 0.5f - 1.5f, 12.f, 12.f);
+    //thumb.addEllipse(sliderPos, bounds.getHeight() * 0.5f - 1.f, 12.f, 12.f);
+    g.setColour(thumbColour);
+    g.fillPath(thumb);
 }
