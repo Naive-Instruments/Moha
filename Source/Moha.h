@@ -20,7 +20,7 @@
 
 #define INIT_HISTORY_LENGTH (1)   // Maximum history length in milliseconds
 #define MIN_CUTOFF_FREQ (200)
-#define LOW_PWM_FREQ (0)
+#define LOW_PWM_FREQ (1)
 #define MAX_PWM_FREQ (500)
 #define MIN_PWM_TRIGGER_LEVEL_IN_DB (-96)
 #define MAX_GAIN_RANGE (24)
@@ -93,7 +93,7 @@ public:
     }
 
     void pfm(double freq, juce::dsp::AudioBlock<float>& block, size_t& frameIndex);
-    void pwm(double freq, juce::dsp::AudioBlock<float>& block, size_t& frameIndex);
+    void pwm(double freq, juce::dsp::AudioBlock<float>& block, size_t& frameIndex, double& preamp);
 
     void GetBufferAvgLevel(juce::dsp::AudioBlock<float>& in_audioBlock, double& _out);
     void GetHistoryAvgLevel(double& _out);

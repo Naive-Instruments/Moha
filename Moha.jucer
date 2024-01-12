@@ -89,7 +89,7 @@
         <MODULEPATH id="juce_graphics" path="C:/JUCE/modules"/>
         <MODULEPATH id="juce_gui_basics" path="C:/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="C:/JUCE/modules"/>
-        <MODULEPATH id="melatonin_blur" path="../../Github"/>
+        <MODULEPATH id="melatonin_blur" path="..\..\GitHub"/>
       </MODULEPATHS>
     </VS2022>
   </EXPORTFORMATS>
