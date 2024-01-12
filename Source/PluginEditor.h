@@ -11,9 +11,9 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "GUI/CustomStyle.h"
-#include "GUI/ShadowSlider.h"
 #include "GUI/CustomLookAndFeel.h"
 #include "GUI/RotarySlider.h"
+#include "GUI/LinearSlider.h"
 
 //==============================================================================
 /**
@@ -76,8 +76,8 @@ private:
     void createLabel(juce::Label& label, juce::String text,
         juce::Component* slider);
 
-    ShadowSlider shadowSlider;
     RotarySlider rotarySlider;
+    LinearSlider linearSlider;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MohaAudioProcessorEditor)
 };

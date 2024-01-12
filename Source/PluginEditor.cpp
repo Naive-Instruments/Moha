@@ -56,7 +56,7 @@ MohaAudioProcessorEditor::MohaAudioProcessorEditor (MohaAudioProcessor& p)
     createLabel(volumeLabel, "Volume", &volumeSlider);
     volumeSliderAttachment = std::make_unique<APVTS::SliderAttachment>(audioProcessor.apvts, "Volume", volumeSlider);
 
-    addAndMakeVisible(shadowSlider);
+    addAndMakeVisible(linearSlider);
 }
 
 MohaAudioProcessorEditor::~MohaAudioProcessorEditor()
@@ -84,7 +84,7 @@ void MohaAudioProcessorEditor::resized()
     const int dialWidth = 90;
     const int dialHeight = 90;
 
-    shadowSlider.setBounds(leftRightMargin, topBottomMargin, dialWidth, dialHeight);
+    linearSlider.setBounds(leftRightMargin, topBottomMargin, 200, 30);
 
     gainSlider.setBounds(leftRightMargin + dialWidth - 6, getHeight() - topBottomMargin - dialHeight, dialWidth, dialHeight);
 
@@ -105,10 +105,10 @@ void MohaAudioProcessorEditor::resized()
 
 void MohaAudioProcessorEditor::createSlider(juce::Slider& slider, juce::String textValueSuffix)
 {
-    addAndMakeVisible(slider);
+    addAndMakeVisible(slider);/*
     slider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     slider.setTextValueSuffix(textValueSuffix);
-    slider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, false, 60, 15);
+    slider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, false, 60, 15);*/
     // slider.setPopupDisplayEnabled(true, true, this);
 }
 

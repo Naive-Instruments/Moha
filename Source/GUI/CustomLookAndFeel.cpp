@@ -85,8 +85,8 @@ void CustomLookAndFeel::drawRotarySlider(juce::Graphics& g, int x, int y, int wi
                                 arcRadius - 3.f,
                                 arcRadius - 3.f,
                                 0.0f,
-                                juce::degreesToRadians(155.f),
-                                juce::degreesToRadians(205.f),
+                                juce::degreesToRadians(150.f),
+                                juce::degreesToRadians(210.f),
                                 true);
 
     strokeType.createStrokedPath(sliderBlurPath, SliderBlurArc);
@@ -106,4 +106,40 @@ juce::Label* CustomLookAndFeel::createSliderTextBox (juce::Slider& slider)
     l->setFont (15);
     
     return l;
+}
+
+void CustomLookAndFeel::drawLinearSlider(juce::Graphics& g, int x, int y, int width, int height,
+                                         float sliderPos,
+                                         float minSliderPos,
+                                         float maxSliderPos,
+                                         juce::Slider::SliderStyle style, juce::Slider& slider)
+{
+    auto bounds = juce::Rectangle<float>(x, y, width, height);
+
+    juce::Path baseLine;
+    float baseLineHeight = 4.f;
+
+    baseLine.addRoundedRectangle(bounds.getX() + 6.f, bounds.getHeight() * 0.5f + baseLineHeight * 0.5f, bounds.getWidth() - 12.f, baseLineHeight, 2.f);
+
+    g.setColour(grey);
+    g.fillPath(baseLine);
+    //g.fillRect(bounds);
+
+    auto sliderRadius = (float)6.5f;//(getSliderThumbRadius (slider) - 2);
+
+    auto isDownOrDragging = slider.isEnabled() && (slider.isMouseOverOrDragging() || slider.isMouseButtonDown());
+
+    auto knobColour = slider.findColour(juce::Slider::thumbColourId);
+    //    .withMultipliedSaturation((slider.hasKeyboardFocus(false) || isDownOrDragging) ? 1.3f : 0.9f)
+    //    .withMultipliedAlpha(slider.isEnabled() ? 1.0f : 0.7f);
+
+    juce::Path thumb;
+    thumb.addEllipse(juce::jmap(sliderPos, 0.f, 200.f, bounds.getX(), bounds.getWidth() - 12.f), bounds.getHeight() * 0.5f - 1.5f, 12.f, 12.f);
+    //thumb.addEllipse(sliderPos, bounds.getHeight() * 0.5f - 1.f, 12.f, 12.f);
+
+    g.setColour(knobColour);
+    g.fillPath(thumb);
+
+    g.setColour(knobColour.brighter());
+    //g.strokePath(p, juce::PathStrokeType(outlineThickness));
 }
