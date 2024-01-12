@@ -147,8 +147,8 @@ void MohaAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
     float pre_highPassFreq = *apvts.getRawParameterValue("HighPassFreq");
     float pre_lowPassFreq = *apvts.getRawParameterValue("LowPassFreq");
     float toneFreq = *apvts.getRawParameterValue("ToneFreq");
-    float sensitivity = *apvts.getRawParameterValue("Sensitivity");
     float speed = *apvts.getRawParameterValue("Speed");
+    float slew = *apvts.getRawParameterValue("Slew");
     float darkness = *apvts.getRawParameterValue("Darkness");
     float volume = *apvts.getRawParameterValue("Volume");
 
@@ -156,8 +156,8 @@ void MohaAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
     moha_fx.SetGain(gain);
     moha_fx.SetHPFPreFreq(pre_highPassFreq);
     moha_fx.SetLPFPreFreq(pre_lowPassFreq);
-    moha_fx.SetSensitivity(sensitivity);
-    moha_fx.SetSpeed(speed);
+    moha_fx.SetSensitivity(speed);
+    moha_fx.SetSpeed(slew);
     moha_fx.SetDarkness(darkness);
     moha_fx.SetVolume(volume);
     moha_fx.SetTone(toneFreq);
@@ -225,11 +225,11 @@ APVTS::ParameterLayout MohaAudioProcessor::createParameterLayout()
     layout.add(std::make_unique<AudioParameterFloat>(ParameterID{ "ToneFreq", 1 },
         "ToneFreq",
         NormalisableRange<float>(500, 20000, .1, 0.25), 16000));
-    layout.add(std::make_unique<AudioParameterFloat>(ParameterID{ "Sensitivity", 1 },
-        "Sensitivity",
-        NormalisableRange<float>(0.f, 100.f, 0.1f, 0.5), 25.f));
     layout.add(std::make_unique<AudioParameterFloat>(ParameterID{ "Speed", 1 },
         "Speed",
+        NormalisableRange<float>(0.f, 100.f, 0.1f, 0.5), 25.f));
+    layout.add(std::make_unique<AudioParameterFloat>(ParameterID{ "Slew", 1 },
+        "Slew",
         NormalisableRange<float>(0.f, 100.f, 0.1f, 1.f), 50.f));
     layout.add(std::make_unique<AudioParameterFloat>(ParameterID{ "Darkness", 1 },
         "Darkness",

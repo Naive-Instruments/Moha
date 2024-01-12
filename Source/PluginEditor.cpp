@@ -38,14 +38,13 @@ MohaAudioProcessorEditor::MohaAudioProcessorEditor (MohaAudioProcessor& p)
     toneFreqSliderAttachment = std::make_unique<APVTS::SliderAttachment>(audioProcessor.apvts, "ToneFreq", toneFreqSlider);
     
     createSlider(sensitivitySlider, " %");
-
-    createLabel(sensitivityLabel, "Sensitivity", &sensitivitySlider);
-    sensitivitySliderAttachment = std::make_unique<APVTS::SliderAttachment>(audioProcessor.apvts, "Sensitivity", sensitivitySlider);
+    createLabel(sensitivityLabel, "Speed", &sensitivitySlider);
+    sensitivitySliderAttachment = std::make_unique<APVTS::SliderAttachment>(audioProcessor.apvts, "Speed", sensitivitySlider);
     
     createSlider(speedSlider, " %");
     toneFreqSlider.setValueArcColour(juce::Colour::fromFloatRGBA(0.43f, 0.83f, 1.0f, 1.0f));
-    createLabel(speedLabel, "Speed", &speedSlider);
-    speedSliderAttachment = std::make_unique<APVTS::SliderAttachment>(audioProcessor.apvts, "Speed", speedSlider);
+    createLabel(speedLabel, "Slew", &speedSlider);
+    speedSliderAttachment = std::make_unique<APVTS::SliderAttachment>(audioProcessor.apvts, "Slew", speedSlider);
     
     createSlider(darknessSlider, " %");
     darknessSlider.setValueArcColour(juce::Colour::fromFloatRGBA(0.34f, 0.74f, 0.66f, 1.0f));
