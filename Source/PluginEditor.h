@@ -14,11 +14,12 @@
 #include "GUI/CustomLookAndFeel.h"
 #include "GUI/RotarySlider.h"
 #include "GUI/LinearSlider.h"
+#include "GUI/SpectrumComponent.h"
 
 //==============================================================================
 /**
 */
-class MohaAudioProcessorEditor  : public juce::AudioProcessorEditor
+class MohaAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::Timer
 {
 public:
     MohaAudioProcessorEditor (MohaAudioProcessor&);
@@ -27,6 +28,7 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
+    void timerCallback() override;
 
 private:
     // This reference is provided as a quick way for your editor to
@@ -78,6 +80,10 @@ private:
 
     RotarySlider rotarySlider;
     LinearSlider linearSlider;
+
+    SpectrumComponent spectrum;
+
+    juce::String compileTime;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MohaAudioProcessorEditor)
 };

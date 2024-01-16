@@ -36,5 +36,7 @@ private:
     int resetWritePosition{ 0 }, resetReadPosition{ 0 };
     int CBNumChannels{ 0 }, CBBufferSize{ 0 };
 
-    void copyFromEveryChannel(juce::AudioBuffer<float>& dest, const int destStartSample, const juce::AudioBuffer<float>& source, const int sourceStartSample, const int numSamples);
+    void copyFromEveryChannel(juce::AudioBuffer<float>& dest, const int destStartSample,
+        const juce::AudioBuffer<float>& source, const int sourceStartSample,
+        const int numSamples);
 };

@@ -19,6 +19,10 @@
         <FILE id="vMDRO4" name="RotarySlider.cpp" compile="1" resource="0"
               file="Source/GUI/RotarySlider.cpp"/>
         <FILE id="vH5Jlq" name="RotarySlider.h" compile="0" resource="0" file="Source/GUI/RotarySlider.h"/>
+        <FILE id="MH7lh1" name="SpectrumComponent.cpp" compile="1" resource="0"
+              file="Source/GUI/SpectrumComponent.cpp"/>
+        <FILE id="BsHp7P" name="SpectrumComponent.h" compile="0" resource="0"
+              file="Source/GUI/SpectrumComponent.h"/>
       </GROUP>
       <GROUP id="{D73D156C-4598-41B2-381C-0F88E26EDF02}" name="DSP">
         <FILE id="Z5Xx3D" name="CircularBuffer.cpp" compile="1" resource="0"
@@ -36,6 +40,8 @@
         <FILE id="goOH3x" name="NotchFilter.h" compile="0" resource="0" file="Source/DSP/NotchFilter.h"/>
         <FILE id="wKexCt" name="PeakFilter.cpp" compile="1" resource="0" file="Source/DSP/PeakFilter.cpp"/>
         <FILE id="AfkIf0" name="PeakFilter.h" compile="0" resource="0" file="Source/DSP/PeakFilter.h"/>
+        <FILE id="A8jkQp" name="SpectrumProcessor.h" compile="0" resource="0"
+              file="Source/DSP/SpectrumProcessor.h"/>
         <FILE id="VrP4wd" name="TestBufferGene.h" compile="0" resource="0"
               file="Source/DSP/TestBufferGene.h"/>
         <FILE id="tmA3y6" name="WavHandler.h" compile="0" resource="0" file="Source/DSP/WavHandler.h"/>
@@ -89,7 +95,7 @@
         <MODULEPATH id="juce_graphics" path="C:/JUCE/modules"/>
         <MODULEPATH id="juce_gui_basics" path="C:/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="C:/JUCE/modules"/>
-        <MODULEPATH id="melatonin_blur" path="..\..\GitHub"/>
+        <MODULEPATH id="melatonin_blur" path="../../Github"/>
       </MODULEPATHS>
     </VS2022>
   </EXPORTFORMATS>

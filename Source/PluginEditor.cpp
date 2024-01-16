@@ -13,9 +13,13 @@
 MohaAudioProcessorEditor::MohaAudioProcessorEditor (MohaAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
+    compileTime = juce::String(__DATE__) + " " + juce::String(__TIME__);
+    // timer
+    juce::Timer::startTimerHz(60.0f);
+
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (800, 400);
+    setSize (800, 600);
 
     //juce::LookAndFeel::setDefaultLookAndFeel(&customLookAndFeel);
     //juce::LookAndFeel::setDefaultLookAndFeel(&customStyle);
@@ -57,6 +61,10 @@ MohaAudioProcessorEditor::MohaAudioProcessorEditor (MohaAudioProcessor& p)
     volumeSliderAttachment = std::make_unique<APVTS::SliderAttachment>(audioProcessor.apvts, "Volume", volumeSlider);
 
     addAndMakeVisible(linearSlider);
+
+    addAndMakeVisible(spectrum);
+    spectrum.setInterceptsMouseClicks(false, false);
+    spectrum.prepareToPaintSpectrum(audioProcessor.spectrumProcessor.getNumBins(), audioProcessor.spectrumProcessor.getFFTData(), audioProcessor.getSampleRate() / (float)audioProcessor.spectrumProcessor.getFFTSize());
 }
 
 MohaAudioProcessorEditor::~MohaAudioProcessorEditor()
@@ -69,9 +77,10 @@ void MohaAudioProcessorEditor::paint (juce::Graphics& g)
     g.fillAll (juce::Colour::fromFloatRGBA(0.f, 0.f, 0.f, 0.65f));
     //g.fillAll(juce::Colours::white);
 
-    g.setColour (juce::Colours::white);
-    g.setFont (32.0f);
-    g.drawFittedText ("MOHA FROG PEDAL FX", getLocalBounds(), juce::Justification::centred, 1);
+    g.setColour(juce::Colours::white);
+    g.setFont(32.0f);
+    //g.drawFittedText("MOHA FROG PEDAL FX", getLocalBounds(), juce::Justification::centred, 1);
+    g.drawFittedText(compileTime, getLocalBounds(), juce::Justification::centred, 1);
 }
 
 void MohaAudioProcessorEditor::resized()
@@ -85,6 +94,8 @@ void MohaAudioProcessorEditor::resized()
     const int dialHeight = 90;
 
     linearSlider.setBounds(leftRightMargin, topBottomMargin, 200, 30);
+
+    spectrum.setBounds(leftRightMargin + 250, topBottomMargin, 500, 300);
 
     gainSlider.setBounds(leftRightMargin + dialWidth - 6, getHeight() - topBottomMargin - dialHeight, dialWidth, dialHeight);
 
@@ -119,4 +130,22 @@ void MohaAudioProcessorEditor::createLabel(juce::Label& label, juce::String text
     label.setJustificationType(juce::Justification::centred);
     label.setBorderSize(juce::BorderSize<int>(0));
     label.attachToComponent(slider, false);
+}
+
+void MohaAudioProcessorEditor::timerCallback()
+{
+    if (audioProcessor.spectrumProcessor.nextFFTBlockReady)
+    {
+        // create a temp ddtData because sometimes pushNextSampleIntoFifo will replace the original
+        // fftData after doingProcess and before painting.
+        float tempFFTData[2 * 2048] = { 0 };
+        memmove(tempFFTData, audioProcessor.spectrumProcessor.getFFTData(), sizeof(tempFFTData));
+        // doing process, fifo data to fft data
+        audioProcessor.spectrumProcessor.processFFT(tempFFTData);
+        // prepare to paint the spectrum
+        spectrum.prepareToPaintSpectrum(audioProcessor.spectrumProcessor.getNumBins(), tempFFTData, audioProcessor.getSampleRate() / (float)audioProcessor.spectrumProcessor.getFFTSize());
+
+        spectrum.repaint();
+        //repaint();
+    }
 }

@@ -178,6 +178,8 @@ void MohaAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
     {
         circularBuffer.isLooping = false;
     }
+
+    spectrumProcessor.pushDataToFFT(buffer);
 }
 
 //==============================================================================

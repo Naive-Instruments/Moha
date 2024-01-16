@@ -118,8 +118,10 @@ void CircularBuffer::resetBufferFromCircularBuffer(juce::AudioBuffer<float>& buf
         }
     }
 }
-
-void CircularBuffer::copyFromEveryChannel(juce::AudioBuffer<float>& dest, const int destStartSample, const juce::AudioBuffer<float>& source, const int sourceStartSample, const int numSamples)
+                                 
+void CircularBuffer::copyFromEveryChannel(juce::AudioBuffer<float>& dest, const int destStartSample,
+                                          const juce::AudioBuffer<float>& source, const int sourceStartSample,
+                                          const int numSamples)
 {
     if (dest.getNumChannels() != source.getNumChannels())
     {

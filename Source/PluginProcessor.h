@@ -12,6 +12,7 @@
 
 #include "Moha.h"
 #include "DSP/CircularBuffer.h"
+#include "DSP/SpectrumProcessor.h"
 //#include "DSP/TestBufferGene.h"
 
 //==============================================================================
@@ -65,12 +66,14 @@ public:
     static APVTS::ParameterLayout createParameterLayout();
     APVTS apvts{ *this, nullptr, "Parameters", createParameterLayout() };
 
+    SpectrumProcessor spectrumProcessor;
+
 private:
     //==============================================================================
     // Components
     Moha moha_fx;
     CircularBuffer circularBuffer{ 2 , 96000 };
-
+    
     double makeUpGain = 1;
 
     //==============================================================================
